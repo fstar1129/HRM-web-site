@@ -1,0 +1,138 @@
+<ng-include src="'assets/templates/siteNavigation.html'"></ng-include>
+<style>
+    html body {
+        /* height: auto; !important;*/
+    }
+
+    .form-group label.control-label {
+        padding-top: 0px !important;
+    }
+
+    .image-viewer {
+        max-width: 100%;
+    }
+    .md-tab {
+        text-transform: capitalize;
+        font-weight: bold;
+    }
+    md-content {
+        overflow: hidden;
+    }
+
+    .remove-image-button {
+        float: right;
+        display: none;
+        color: red;
+        opacity: 1.0;
+    }
+
+    .remove-image-button.show {
+        display: block;
+    }
+
+    .image-box {
+        padding: 10px;
+    }
+
+    .image-box img {
+        padding: 10px;
+    }
+    input {
+        max-width: 100%;
+        border: 0px solid;
+    }
+    
+    .autocomplete li.active { 
+        width: calc(100% + 4px);
+        margin-left: -2px;
+    }
+
+</style>
+
+<div class="container">
+    <div class="page-title-box">
+        <span class="page-title">{{pageTitle}}</span>
+    </div>
+    <form class="form-horizontal">
+
+        <div ng-cloak="" class="tabsdemoDynamicHeight">
+            <md-content class="md-padding">
+                <!-- Choose Course -->
+                <div class="form-group">
+                    <label class="control-label col-sm-3" for="course_name">Choose Course:</label>
+                    <div class="col-sm-9">
+                        <autocomplete class="form-control" id="course_name" name="course_name" ng-model="course_name" attr-placeholder="Please type course name..." click-activation="true" data="course_name_list" on-type="doChangeCourseName" on-select="doSelectedCourseName"></autocomplete>
+                    </div>
+                </div>
+
+                <!-- Course Supervisor -->
+                <div class="form-group">
+                    <label class="control-label col-sm-3" for="course_supervior">Course Supervisor:</label>
+                    <div class="col-sm-9">
+                        <autocomplete class="form-control" id="course_supervior" name="course_supervior" ng-model="course_supervior" attr-placeholder="Please type username..." click-activation="true" data="user_name_list" on-type="doChangeCourseSuperior" on-select="doSelectedCourseSuperior"></autocomplete>
+                    </div>
+                </div>
+
+                <!-- Course Description -->
+                <div class="form-group">
+                    <label class="control-label col-sm-3" for="course_description">Course Description:</label>
+                    <div class="col-sm-9">
+                        <textarea readonly="readonly" class="form-control" rows="5" ng-model = 'alloc_course.course_description' name="course_description" id="course_description"></textarea>
+                    </div>
+                </div>
+
+                <!-- Enter Employee Name -->
+                <div class="form-group">
+                    <label class="control-label col-sm-3" for="course_name">Enter Employee Name:</label>
+                    <div class="col-sm-9">
+                        <autocomplete class="form-control" id="employee_name" name="employee_name" ng-model="employee_name" attr-placeholder="Please type username..." click-activation="true" data="user_name_list" on-type="doChangeCourseSuperior" on-select="doSelectedEmployee"></autocomplete>
+                    </div>
+                </div>
+
+                <!-- Alloc Date -->
+                <div class="form-group">
+                    <label class="control-label col-sm-3">When should this course be allocated:</label>
+                    <div class="col-sm-9">
+                        <md-radio-group ng-model="alloc_date_type" ng-change="changedEnterDate()">
+                            <md-radio-button value="now" class="md-primary" >Now</md-radio-button>
+                            <md-radio-button value="enter_date">Enter Date</md-radio-button>
+                            <input type="date" ng-model = 'enter_alloc_date' name="alloc_date" class="form-control" id="alloc_date" ng-show="show_expire_date_field">
+                        </md-radio-group>
+                    </div>
+                </div>
+
+                <!-- Expire hours -->
+                <div class="form-group">
+                    <label class="control-label col-sm-3">How long does this person have to do the course before it expires from the date of commencement?</label>
+                    <div class="col-sm-9">
+                        <select class="form-control" name="expire_hours" id="expire_hours"
+                                ng-options="option.title for option in expire_hours.availableOptions track by option.value"
+                                ng-model="expire_hours.selectedOption"></select>
+                    </div>
+                </div>
+
+                <!-- Email -->
+                <div class="form-group">
+                    <label class="control-label col-sm-3">Email the users a link and their password?</label>
+                    <div class="col-sm-9">
+                        <md-radio-group ng-model="alloc_course.is_sending_email">
+                            <md-radio-button value="1" class="md-primary" >Yes, when the course becomes active</md-radio-button>
+                            <md-radio-button value="0">No, do not email the learner</md-radio-button>
+                        </md-radio-group>
+                    </div>
+                </div>
+            </md-content>
+        </div>
+        <div class="form-group" style="float: right; padding: 20px;">
+            <button value="button" class="btn btn-primary" ng-click="save()">Save</button>
+            <button class="btn btn-info" ng-click="cancel()" ng-disabled="formEnabled == 0">Cancel</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    //    function changeVideo(obj) {
+    //        var fileUrl = window.URL.createObjectURL(obj.files[0]);
+    //        $('#media_video').attr('src', fileUrl);
+    //    }
+</script>

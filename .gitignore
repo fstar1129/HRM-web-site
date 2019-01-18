@@ -1,0 +1,13 @@
+/*
+
+!/.gitignore
+!/index.html
+!/.gitattributes
+!assets/
+assets/*
+!/assets/js/
+!/assets/php/
+!/assets/templates/
+
+assets/css/*
+!assets/css/styles.css

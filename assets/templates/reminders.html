@@ -1,0 +1,300 @@
+<ng-include src="'assets/templates/siteNavigation.html'"></ng-include>
+
+<style>
+    .md-whiteframe-1dp,
+    .md-whiteframe-z1 {
+        box-shadow: none;
+        border: 1px solid #b6dde7;
+        border-radius: 6px;
+        height: 36px;
+    }
+
+    md-autocomplete {
+        height: 35px;
+    }
+
+    md-autocomplete input:not(.md-input) {
+        height: 36px;
+        padding-left: 8px;
+    }
+
+    md-autocomplete button {
+        margin-right: -20px;
+    }
+
+    md-virtual-repeat-container:first-child {
+        background-color: red !important;
+    }
+
+    .md-virtual-repeat-container.md-autocomplete-suggestions-container {
+        border-top: none;
+        border-radius: 0;
+        box-shadow: 0px 7px 14px rgba(0, 0, 0, .25) !important;
+    }
+
+    html #employees .md-padding {
+        overflow: hidden;
+    }
+</style>
+
+<div class="container" id="employees">
+    
+
+    
+    <div class="clear" style="margin-top:30px;"><h3>{{pageTitle}}</h3></div>
+    <button class="new-emp btn btn-primary" ng-click="newReminder()">Add New</button>
+    <div class="clear"></div>
+    <div class="clear"></div>
+    <div class="grid employee-grid" external-scopes="clickHandler" ui-grid="gridOptionsComplex" ui-grid-edit
+        ui-grid-resize-columns ui.grid.selection style="margin-bottom: 0px;"></div>
+    <div class="col-md-12" style="border:1px solid #b3dce6;"><h3>{{pageTitle}}</h3></div>
+    <form name="remform" ng-class="{'disabled': formEnabled == 0}" novalidate>
+
+        <div id="tab4" class="tab-pane">
+            <fieldset ng-disabled="formEnabled == 0">
+                <div class="col-md-12 tabborder">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group row" ng-if="add_or_edit == 0">
+                            
+                                <label class="control-label col-sm-4" for="emp_name">Employee Name</label>
+                                
+                                <div class="col-sm-8">
+    
+                                    <md-autocomplete flex required md-input-name="emp_name1" md-no-cache="en.noCache"
+                                        md-selected-item="en.emp_name1" md-search-text="en.searchText"
+                                        md-selected-item-change="selectEmployee()" md-items="item in en.querySearch(en.searchText)"
+                                        md-item-text="item.display" ng-disabled="FormEnabled == false">
+                                        <md-item-template>
+                                            <span md-highlight-text="en.searchText">{{item.display}}</span>
+                                        </md-item-template>
+                                    </md-autocomplete>
+    
+                                </div>
+                            </div>
+                            <div class="form-group row" ng-if="!add_or_edit == 0">
+                                <label class="control-label col-sm-4" for="emp_name">Employee Name</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" ng-model="emp_name"
+                                        placeholder=""  ng-if="!add_or_edit == 0" disabled>
+                                </div>
+                            </div>
+                            
+                            <!-- <emp-field fld-label="Job Title" ng-model="reminder.job_title" disabled></emp-field> -->
+                            <div class="form-group row">
+                                <label class="control-label col-sm-4" for="job_title">Job Title</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" ng-model="job_title"
+                                        placeholder="" disabled>
+                                </div>
+                            </div>
+                            <emp-field fld-label="Email address" ng-model="reminder.reminder_email" ng-required="formEnabled == 1"></emp-field>
+                            <div class="form-group row">
+                                
+                                <label class="control-label col-sm-4" for="empw_license_name">Select Reminder Email</label>
+                                
+                                <div class="col-sm-8">
+    
+                                    <md-autocomplete flex required md-input-name="email_name" md-no-cache="ew.noCache"
+                                        md-selected-item="ew.email_name" md-search-text="ew.emailNameSearchText"
+                                        md-selected-item-change="selectEmailName()" md-items="item in ew.queryEmailNameSearch(ew.emailNameSearchText)"
+                                        md-item-text="addText(item.display)" ng-disabled="FormEnabled == false">
+                                        <md-item-template>
+                                            <span md-highlight-text="ew.searchText">{{item.display}}</span>
+                                        </md-item-template>
+                                    </md-autocomplete>
+    
+                                </div>
+                            </div>
+                        
+                            <div class="form-group row">
+                                <label class="control-label col-sm-4" for="date_from">Start Emails Alert From</label>
+                                <div class="col-sm-8">
+                                    <div class="field-container">
+                                        <div class="field">
+                                            <md-datepicker name="date_from" ng-model="reminder.alert_from"
+                                                md-current-view="year" md-placeholder="" md-hide-icons="all"
+                                                md-is-open="empstdate.isOpen" ng-required="formEnabled == 1" ng-disabled="FormEnabled == false"></md-datepicker>
+                                        </div>
+                                        <div class="icon">
+                                            <button ng-click="empstdate.isOpen = true" type="button" ng-disabled="FormEnabled == false">
+                                                <span class="glyphicon glyphicon-calendar"></span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <span id="date_from" style="display:none;" class="text-danger">Enter
+                                        Start Date</span>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label class="control-label col-sm-4" for="expiry_date">Finish Emails Alert On</label>
+                                <div class="col-sm-8">
+                                    <div class="field-container">
+                                        <div class="field">
+                                            <md-datepicker ng-model="reminder.alert_expiry" md-current-view="year" ng-required="formEnabled == 1"
+                                                md-placeholder="" md-hide-icons="all" md-is-open="empenddate.isOpen" ng-disabled="FormEnabled == false"></md-datepicker>
+                                        </div>
+                                        <div class="icon">
+                                            <button ng-click="empenddate.isOpen = true" type="button" ng-disabled="FormEnabled == false">
+                                                <span class="glyphicon glyphicon-calendar"></span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <span id="date_expire" style="display:none;" class="text-danger">Enter
+                                        End Date</span>
+                                </div>
+                            </div>
+                            <div class="row" style="margin-left: 0px; margin-right: 0px;">
+                                    <table class="table table-striped" id="course_table" style="table-layout: fixed; width: 100%">
+                                        <thead style="background-color: #eee; color: black;">
+                                            <tr>
+                                                <th ng-click="sort('email_name')" style="text-align: center;width:30%;vertical-align: text-top">Name of Reminder
+                                                    <span class="fa sort-icon" ng-show="sortKey=='updated_time'"
+                                                        ng-class="{'fa-caret-up':reverse,'fa-caret-down':!reverse}"></span>
+                                                </th>
+                                                <th ng-click="sort('created_at')" style="text-align: center;width:30%;vertical-align: text-top" >Date Created
+                                                    <span class="fa sort-icon" ng-show="sortKey=='hr_issue'"
+                                                        ng-class="{'fa-caret-up':reverse,'fa-caret-down':!reverse}"></span>
+                                                </th>
+                                                <th ng-click="sort('due_date')" style="text-align: center;width:20%;vertical-align: text-top">Date Finished
+                                                    <span class="fa sort-icon" ng-show="sortKey=='hr_action'"
+                                                        ng-class="{'fa-caret-up':reverse,'fa-caret-down':!reverse}"></span>
+                                                </th>
+                                                <th style="text-align: center;width:20%;vertical-align: text-top">Action
+                                                    
+                                                </th>
+                                                
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr dir-paginate="reminder in reminders|orderBy:sortKey:reverse|filter:search|itemsPerPage:6">
+                                                <td style="text-align: center;width:22%;vertical-align: middle">
+                                                    {{reminder.email_name}}
+                                                </td>
+                                                <td style="text-align: center;width:22%;vertical-align: middle">
+                                                    {{formatDate1(reminder.created_at)}}
+                                                </td>
+                                                <td style="text-align: center;width:22%;vertical-align: middle">
+                                                    {{reminder.alert_status == 0 ? formatDate1(reminder.due_date) : "Active"}}
+                                                </td>
+                                                <td style="text-align: center;width:22%;vertical-align: middle">
+                                                   <a ng-click="stopAlert(reminder.id)" ng-if="reminder.alert_status == 1">STOP</a>
+                                                   <a ng-click="startAlert(reminder.id)" ng-if="reminder.alert_status == 0">RESTART</a>
+                                                </td>
+                                                
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <div style="height: 100px; text-align: center;">
+                                        <dir-pagination-controls max-size="6" direction-links="true"
+                                            boundary-links="true">
+                                        </dir-pagination-controls>
+                                    </div>
+                        
+                                </div>
+                        
+
+                        </div>
+                        <div class="col-md-6">
+                            <!--  log history   -->
+                            <div class="row" style="margin-left: 0px; margin-right: 0px;">
+                                <table class="table table-striped" id="course_table" style="table-layout: fixed; width: 100%; margin-bottom:0;border: 1px solid rgb(138, 138, 138)">
+                                    <thead style="background-color: #b3dce6; color: white;">
+                                        <tr>
+                                            <th ng-click="sort('email_name')" style="text-align: center;width:30%;vertical-align: text-top">Name of Reminder
+                                                <span class="fa sort-icon" ng-show="sortKey=='updated_time'"
+                                                    ng-class="{'fa-caret-up':reverse,'fa-caret-down':!reverse}"></span>
+                                            </th>
+                                            <th ng-click="sort('description')" style="text-align: center;width:30%;vertical-align: text-top" >Description
+                                                <span class="fa sort-icon" ng-show="sortKey=='hr_issue'"
+                                                    ng-class="{'fa-caret-up':reverse,'fa-caret-down':!reverse}"></span>
+                                            </th>
+                                            <th ng-click="sort('days_prior')" style="text-align: center;width:25%;vertical-align: text-top">Frequency
+                                                <span class="fa sort-icon" ng-show="sortKey=='hr_action'"
+                                                    ng-class="{'fa-caret-up':reverse,'fa-caret-down':!reverse}"></span>
+                                            </th>
+                                        
+                                            <th style="text-align: center;width:15%;vertical-align: text-top">Action
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr dir-paginate="reminder in reminder1|orderBy:sortKey:reverse|filter:search|itemsPerPage:6" style="border: 1px solid rgb(138, 138, 138) ">
+                                            <td style="text-align: center;width:30%;vertical-align: middle;word-wrap: break-word">
+                                                {{reminder.email_name}}
+                                            </td>
+                                            <td style="width:30%;vertical-align: middle;word-wrap: break-word">
+                                                {{reminder.description}}
+                                            </td>
+                                            <td style="text-align: center;width:25%;vertical-align: middle;word-wrap: break-word">
+                                                {{displayDaysPrior(reminder)}}
+                                            </td>
+                                            <td style="text-align: center;width:15%;vertical-align: middle;word-wrap: break-word">
+                                                <a ng-click="viewEmail(reminder.email_con)">View</a><br>
+                                                <a ng-click="editEmail(reminder)">Edit</a><br>
+                                                <a ng-click="removeReminder(reminder)">Remove</a>
+                                            </td>
+                                        </tr>
+                                        
+                                    </tbody>
+                                </table>
+                                
+                                <div class="row"  style="margin-left: 0px; margin-right: 0px;background-color: #b3dce6;border: 1px solid rgb(138, 138, 138);">
+                                    <div class="col-sm-12"  style="padding:0px;border-right: 1px solid rgb(138, 138, 138);background-color: white">
+                                        <textarea class="form-control" ng-model="reminder.email_con"
+                                            placeholder="Enter Email..." rows="15" ng-disabled="!email_status">
+                                        </textarea>
+                                    </div>
+                                    
+                                    <div class="col-sm-12" style="padding-top:15px;color:black">
+                                        <h5 style="font-weight:bold">Name of Email</h5>
+                                        <p>Confirm how many dates before the due date when the email will be sent</p>
+                                        <div class="col-sm-8">
+                                            <select class="form-control" ng-model="reminder.days_prior"
+                                                ng-init="reminder.days_prior=''" ng-disabled="noteFormEnabled == false" ng-required style="margin:15px 0px 15px 0px;">
+                                                <option value="">Please Select...</option>
+                                                <option value="{{ $index }}" ng-repeat="d in days_prior_list">{{
+                                                    d }}</option>
+                                            </select>
+                                            
+                                        </div>
+                                        <div class="col-sm-4">
+
+                                             <button ng-click="saveEmail()" value="Submit" class="btn btn-primary"
+                                                style="margin-left: 5px;width:100%;margin:15px 0px 15px 0px;" ng-disabled="!email_status">Save</button>
+                                        </div>
+                                       
+                                       
+                                       
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+
+        <div class="userMessage">&nbsp;
+            <div id="log_er_msg"></div>
+            <div id="login_error" class="col-xs-12" ng-show="showMessage == 1" style="float: none;">
+                <div class="alert {{ success == 1 ? 'alert-success' : 'alert-danger'}} alert-dismissable" style="padding-right: 45px;">
+                    <i class="fa fa-ban"></i>
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true" ng-click="showMessage = 0;">&times;</button>
+                    {{ userMessage }}
+                </div>
+            </div>
+        </div>
+        <!--  submit and clear btns  -->
+        <div class="buttons">
+            
+            <button ng-click="saveReminder()" value="Submit" class="btn btn-primary" ng-class="{'disabled': remform.$invalid }"
+                ng-disabled="remform.$invalid || formEnabled == 0" style="margin-left: 5px;">Submit</button>
+            <button class="btn btn-info" ng-click="clearForm()" ng-disabled="formEnabled == 0" style="margin-left: 5px;">Clear</button>
+        </div>
+
+        <!-- --------------- END: Detail area ----------- -->
+    </form>
+
+</div>

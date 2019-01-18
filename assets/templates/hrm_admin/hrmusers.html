@@ -1,0 +1,302 @@
+<ng-include src="'assets/templates/siteNavigation.html'"></ng-include>
+
+<div class="container" id="users">
+    <h3>{{pageTitle}}</h3>
+
+    <button class="new-emp btn btn-primary" ng-click="newUser()">New User</button>
+    <div class="clear"></div>
+    <div class="grid user-grid" external-scopes="clickHandler" ui-grid="gridOptionsComplex" ui-grid-edit ui-grid-resize-columns ui.grid.selection></div>
+    
+    
+    
+    <form name="user_form">
+    <md-content>
+        <md-tabs md-dynamic-height md-border-bottom>
+            <md-tab label="user detail">
+                <md-content class="md-padding">
+
+                    <div id="tab1" class="tab-pane fade in active">
+                        <fieldset ng-disabled="formEnabled == 0">
+                        <div class="col-md-12 tabborder">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    
+                                    <emp-field fld-label="First Name" ng-model="user.firstname" ng-required="formEnabled == 1"></emp-field>
+                                    <emp-field fld-label="Last Name" ng-model="user.lastname" ng-required="formEnabled == 1"></emp-field>
+                                    <emp-field fld-label="Email" ng-model="user.email" ng-required="formEnabled == 1"></emp-field>
+                                    <emp-field fld-label="Username" ng-model="user.username" ng-required="formEnabled == 1"></emp-field>                                    
+                                    <emp-field fld-type="password" fld-label="Password" ng-model="user.password" ng-required="formEnabled == 1 && user.id == '0'"></emp-field>
+                                    
+                                    <emp-field fld-label="Contact Phone" ng-model="user.telephone" ng-required="formEnabled == 1"></emp-field>
+                                    <emp-field fld-label="Postcode" ng-model="user.postcode" ng-required="formEnabled == 1"></emp-field>
+                                    
+                                    <div class="form-group row">
+                                        <label class="control-label col-sm-4" for="dob">Date of Birth</label>
+                                        <div class="col-sm-8">
+                                            <div class="field-container" ng-class="formEnabled == 1 && !user.dob ? 'invalid' : ''">
+                                                <div class="field">
+                                                    <md-datepicker name="dob" ng-model="user.dob" md-current-view="year" md-placeholder="" md-hide-icons="all" md-is-open="userdob.isOpen" ng-required="formEnabled == 1"></md-datepicker>
+                                                </div>
+                                                <div class="icon">
+                                                    <button ng-click="userdob.isOpen = true">
+                                                        <span class="glyphicon glyphicon-calendar"></span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <span id="errormsg_emp_dob" style="display:none;" class="text-danger">Enter Date of Birth</span>
+                                        </div>
+                                    </div>                                    
+                                    
+                                    
+                                    
+                                    
+                                    
+                                    
+                                    <emp-field fld-label="Trading Name" ng-model="user.tradingname" ng-required="formEnabled == 1"></emp-field>
+                                    <emp-field fld-label="Company Name" ng-model="user.companyname" ng-required="formEnabled == 1"></emp-field>
+                                    <emp-field fld-label="ABN" ng-model="user.abn" ng-required="formEnabled == 1"></emp-field>
+                                    <emp-field fld-label="Business Address" ng-model="user.address" ng-required="formEnabled == 1"></emp-field>
+                                    <emp-field fld-label="Suburb" ng-model="user.suburb" ng-required="formEnabled == 1"></emp-field>
+                                   
+                                    
+                                    <div class="form-group row">
+                                        <label class="control-label col-sm-4" for="usertype_id">State</label>
+                                        <div class="col-sm-8">
+                                            <select class="form-control" ng-model="user.state" ng-required="formEnabled == 1" aria-invalid="false" ng-init="user.state = '0'">
+                                                <option value="0" selected="selected">Please select..</option>
+                                                <option label="ACT" value="6">ACT</option>
+                                                <option label="NSW" value="2">NSW</option>
+                                                <option label="NT" value="8">NT</option>
+                                                <option label="QLD" value="3">QLD</option>
+                                                <option label="SA" value="4">SA</option>
+                                                <option label="TAS" value="5">TAS</option>
+                                                <option label="VIC" value="1">VIC</option>
+                                                <option label="WA" value="7">WA</option>
+                                            </select> 
+                                        </div>
+                                    </div>                                    
+
+                                    
+                                    <emp-field type="number" fld-label="Number of Employees" ng-model="user.numEmployees" ng-required="formEnabled == 1" ng-init="user.numEmployees = '0'"></emp-field>
+                                    
+                                    
+                                    
+                                    <div class="form-group row">
+                                        <label class="control-label col-sm-4" for="usertype_id">User role</label>
+                                        <div class="col-sm-8">
+                                            <select ng-model="user.usertype_id" ng-required="formEnabled == 1">
+                                                <option value="">Please select..</option>
+                                                <option ng-repeat="u in userroles" ng-value="{{u.id}}" ng-selected="user.usertype_id == u.id">{{u.display_text}}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" ng-model="user.id" ng-init="user.id='0'">
+                                    <input type="hidden" ng-model="user.account_id" ng-init="user.account_id='0'">
+                                    <input type="hidden" ng-model="user.added_by">
+                                    <input type="hidden" ng-model="user.update_by">                                    
+                                    
+                                    <div class="userMessage">&nbsp;
+                                        <div id="log_er_msg"></div>
+                                        <div id="login_error" class="col-xs-12" ng-show="showMessage == 1" style="float: none;">
+                                            <div class="alert {{ success == 1 ? 'alert-success' : 'alert-danger'}} alert-dismissable" style="padding-right: 45px;">
+                                                <i class="fa fa-ban"></i>
+                                                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                                                {{ userMessage }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="buttons">    
+                                      <button type="button" ng-click="saveUser()" value="Save" class="btn btn-primary" ng-class="{'disabled': user_form.$invalid }" ng-disabled="user_form.$invalid">Submit</button> 
+                                      <button class="btn btn-info" ng-click="clearForm()" ng-disabled="formEnabled == 0" style="margin-left: 5px;">Clear</button>
+                                      <button type="button" ng-click="doReleaseLockout()" value="Release Lockout" class="btn btn-danger" style="margin-left: 5px;">Release Lockout</button>
+                                  </div>                                          
+
+                                </div>
+                            </div>
+                        </div>
+                        </fieldset>
+                    </div>
+
+                </md-content>
+                
+          </md-tab>
+            
+      </md-content>         
+      </form>
+</div>    
+<!--    
+    <form name="userform" ng-class="{'disabled': formEnabled == 0}">
+    <style>
+    md-tabs.md-default-theme md-ink-bar, md-tabs md-ink-bar {
+        color: transparent;
+        background: none;
+    }
+    </style>
+        
+        
+    <!-- --------------- Detail area ------------- >
+    <md-content>
+        <md-tabs md-dynamic-height md-border-bottom>
+            <md-tab label="user detail">
+                <md-content class="md-padding">
+
+                    <div id="tab1" class="tab-pane fade in active">
+                        <fieldset ng-disabled="formEnabled == 0">
+                        <div class="col-md-12 tabborder">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    
+                                    <emp-field fld-label="First Name" ng-model="user.firstname" ng-required="formEnabled == 1"></emp-field>
+                                    <emp-field fld-label="Last Name" ng-model="user.lastname" ng-required="formEnabled == 1"></emp-field>
+                                    <emp-field fld-label="Username" ng-model="user.username" ng-required="formEnabled == 1"></emp-field>
+                                    <emp-field fld-label="Email" ng-model="user.email" ng-required="formEnabled == 1"></emp-field>
+                                    <emp-field fld-type="password" fld-label="Password" ng-model="user.password" ng-required="formEnabled == 1"></emp-field>
+                                    
+                                    <div class="form-group row">
+                                        <label class="control-label col-sm-4" for="usertype_id">User role</label>
+                                        <div class="col-sm-8">
+                                            <select ng-model="user.usertype_id" ng-required="formEnabled == 1">
+                                                <option value="">Please select..</option>
+                                                <option ng-repeat="u in userroles" ng-value="{{u.id}}" ng-selected="user.usertype_id == u.id">{{u.display_text}}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" ng-model="user.id">
+                                    <input type="hidden" ng-model="user.account_id">
+                                    <input type="hidden" ng-model="user.added_by">
+                                    <input type="hidden" ng-model="user.update_by">                                    
+                                    
+                                    <div class="userMessage">&nbsp;
+                                        <div id="log_er_msg"></div>
+                                        <div id="login_error" class="col-xs-12" ng-show="showMessage == 1">
+                                            <div class="alert {{ success == 1 ? 'alert-success' : 'alert-danger'}} alert-dismissable">
+                                                <i class="fa fa-ban"></i>
+                                                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                                                {{ userMessage }}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                        </fieldset>
+                    </div>
+
+                </md-content>
+          </md-tab>
+
+      </md-content>
+
+      <div class="buttons">
+          <button ng-click="saveUser()" value="Save" class="btn btn-primary" ng-class="{'disabled': user_form.$invalid }" ng-disabled="user_form.$invalid">Submit</button> 
+          <button class="btn btn-info" ng-click="clearForm()" ng-disabled="formEnabled == 0" style="margin-left: 5px;">Clear</button>
+      </div>
+
+    <!-- --------------- END: Detail area ------------- >
+    </form>
+
+</div>
+-->
+
+
+
+
+
+
+<!--
+<ng-include src="'assets/templates/siteNavigation.html'"></ng-include>
+
+<div class="container">
+    <div class="page-title-box">
+        <span class="page-title">{{pageTitle}}</span>
+    </div>
+
+    <div class="row" style="padding-left: 15px; padding-right: 15px;">
+        <div style="display: inline-block; width: 40%;">
+            <div class="input-group">
+                <div class="input-group-addon"><i class="fa fa-search"></i></div>
+                <input type="text" class="form-control" placeholder="Search..." ng-model="search">
+            </div>
+        </div>
+        <button class="btn btn-primary" style="float: right; display: inline-block;" ng-click="newUser()"> New User </button>
+    </div>
+    <div class="row" style="margin-left: 0px; margin-right: 0px;">
+        <table class="table table-striped" id="course_table">
+            <thead style="background-color: #0e90d2; color: white;">
+            <tr>
+                <th ng-click="sort('name')">Name
+                    <span class="fa sort-icon" ng-show="sortKey=='name'" ng-class="{'fa-caret-up':reverse,'fa-caret-down':!reverse}"></span>
+                </th>
+                <th ng-click="sort('email')">Email
+                    <span class="fa sort-icon" ng-show="sortKey=='email'" ng-class="{'fa-caret-up':reverse,'fa-caret-down':!reverse}"></span>
+                </th>
+                <th ng-click="sort('username')">Username
+                    <span class="fa sort-icon" ng-show="sortKey=='username'" ng-class="{'fa-caret-up':reverse,'fa-caret-down':!reverse}"></span>
+                </th>
+                <th ng-click="sort('phone')">Phone
+                    <span class="fa sort-icon" ng-show="sortKey=='phone'" ng-class="{'fa-caret-up':reverse,'fa-caret-down':!reverse}"></span>
+                </th>
+                <th ng-click="sort('number_of_employees')">Number of Employees
+                    <span class="fa sort-icon" ng-show="sortKey=='number_of_employees'" ng-class="{'fa-caret-up':reverse,'fa-caret-down':!reverse}"></span>
+                </th>
+                <th ng-click="sort('role')" width="150px;">User Role
+                    <span class="fa sort-icon" ng-show="sortKey=='role'" ng-class="{'fa-caret-up':reverse,'fa-caret-down':!reverse}"></span>
+                </th>
+                <th ng-click="sort('status')" width="150px;">Status
+                    <span class="fa sort-icon" ng-show="sortKey=='status'" ng-class="{'fa-caret-up':reverse,'fa-caret-down':!reverse}"></span>
+                </th>
+                <th width="70px;">
+                    Action
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr dir-paginate="user in users|orderBy:sortKey:reverse|filter:search|itemsPerPage:10">
+                <td>
+                    {{user.firstname}} {{user.lastname}}
+                </td>
+                <td>
+                    {{user.email}}
+                </td>
+                <td>
+                    {{user.username}}
+                </td>
+                <td>
+                    {{user.telephone}}
+                </td>
+                <td>
+                    {{user.numEmployees}}
+                </td>
+                <td>
+                    {{user.role}}
+                </td>
+                <td>
+                    <div ng-if="user.active == 0" class="btn-group">
+                        <button type="button" class="btn btn-sm btn-default btn-group-child" ng-click="activateUser(user, 1)">Active</button>
+                        <button type="button" class="btn btn-sm btn-success btn-group-child" ng-click="activateUser(user, 0)">Inactive</button>
+                    </div>
+                    <div ng-if="user.active == 1" class="btn-group">
+                        <button type="button" class="btn btn-sm btn-success btn-group-child" ng-click="activateUser(user, 1)">Active</button>
+                        <button type="button" class="btn btn-sm btn-default btn-group-child" ng-click="activateUser(user, 0)">Inactive</button>
+                    </div>
+                </td>
+                <td>
+                    <a class="action-button" ng-click="editUser(user)"><i class="fa fa-edit"></i></a>
+                    <a class="action-button" ng-click="deleteUser(user)"><i class="fa fa-trash-o"></i></a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div style="height: 100px; text-align: center;">
+            <dir-pagination-controls
+                    max-size="10"
+                    direction-links="true"
+                    boundary-links="true" >
+            </dir-pagination-controls>
+        </div>
+    </div>
+</div>
+-->

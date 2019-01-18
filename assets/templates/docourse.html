@@ -1,0 +1,114 @@
+<ng-include src="'assets/templates/siteNavigation.html'"></ng-include>
+
+<style>
+    .answer-wrapper { display: flex; align-items: center; margin-bottom: 5px;}
+    @media only screen and (max-width: 600px) {
+        html body { padding: 0; }
+        input[type="radio"] { width: 32px; margin-bottom: 5px; }  
+        
+       
+    }   
+
+
+</style>
+
+
+
+<div class="container" id="docourse">
+    <h3>{{pageTitle}} - {{ course.coursetitle }}</h3>
+
+    <div class="clear"></div>
+    
+    <div id="step1" ng-show="course.step == 1">
+        <p>Welcome {{ course.learnersname }},</p>
+        <p>You have {{ course.hoursleft }} hours before this course expires. You need to get 100% in order to pass.</p>
+        <p>You can leave the course at any time and come back later to recommence the course as long as the course 
+        is completed by the due date.</p>
+        <p>Your IP address is recorded for security purposes and by undergoing this test, you agree to the <a href="#/terms" title="Terms and Conditions" target="_blank">terms and
+                conditions</a> of website use. For further information, please visit our <a href="#/privacy" title="Privacy" target="_blank">privacy link</a>.</p>
+        <p>These questions have time limits which are displayed in each question. This time limit commences when the question loads. If you do not complete 
+        the question on time, you will fail that particular question.</p>
+        <p>These questions are designed in a way which facilitates the learning process and all records will be kept secure on the database and only accessible 
+        to the authorised person at {{ course.tradingname }}.</p> 
+        <p>&nbsp;</p>
+        <p class="text-right"><a href="javascript:void(0);" ng-click="courseproceed()">I understand and want to proceed</a></p>
+    </div>
+    
+    
+    <div id="step2" ng-show="course.step == 2">
+        <div style="display: flex; flex-direction: row;">
+            <div style="display: none;"><h3>{{ course.coursetitle }}</h3></div>            
+            <div style="display: none;">{{ course.hoursleft }}</div>
+        </div>
+        
+        <p>{{ course.coursedescription }}</p>
+        
+        
+      <div class="buttons" style="width: 120px; margin: 40px auto 0;">
+          <button ng-click="back()" class="btn btn-default">Back</button>
+          <button class="btn btn-primary" ng-click="next()" style="margin-left: 5px;">Next</button>
+      </div>
+
+    </div>    
+    
+
+    <div id="step3" ng-show="course.step == 3">
+        <div style="display: none;; flex-direction: row;">
+            <div><h3>{{ course.coursetitle }}</h3></div>            
+            <div>{{ course.timer }}</div>
+        </div>
+        
+        
+        
+        <div class="question-list" ng-repeat="q in course.questions" ng-hide="question_id  != q.question_id">
+            <div style="display: flex; flex-direction: column;" class="question_{{q.question_id}}">
+                <div ng-show="q.media_type == 0">
+                    <img ng-hide="q.image==''" src="https://www.hrmaster.com.au/assets/uploads/{{q.image}}" border="0">
+                </div>
+                <div ng-show="q.media_type == '3'">
+                    <object width="100%" height="600" data="{{q.pdf}}"></object>
+                </div>    
+                <div ng-show="q.media_type == '1'">
+                    <video width="100%" height="400" controls>
+                        <source src="{{q.video}}">
+                    </video>                    
+                </div>                 
+                <div style="min-width: 250px; margin-left: 10px; margin-top: 25px;">
+                    <p>{{ q.title }}</p>
+                    <p>
+                        <!--<select ng-model="answer[q.question_id]" ng-init="answer[q.question_id]='0'">
+                            <option value="0">Please select..</option>
+                            <option ng-repeat="a in q.answers" ng-value="a.answer_id">{{ a.title }}</option>
+                        </select>-->
+                        <div ng-repeat="a in q.answers" class="answer-wrapper">
+                            <input ng-model="answer[q.question_id]" type="radio" ng-value="a.answer_id" name="answer" style="margin: 0 5px 0 0;"> {{ a.title }}
+                        </div>
+                    </p> 
+                </div>
+            </div>    
+            
+            <div class="buttons" style="width: 190px; margin: 40px auto 20px;">
+                <a class="btn btn-default" href="#logout">Logout</a>
+                <button class="btn btn-primary" ng-click="submitAnswer(q.question_id)" ng-disabled="!answer[q.question_id]" style="margin-left: 5px;">Submit Answer</button>
+            </div>
+            
+        </div>
+
+    </div> 
+
+    <div id="stepcomplete" ng-show="course.step == 'complete'">
+        <div style="display: flex; flex-direction: row;">
+            <div><h3>{{ course.coursetitle }}</h3></div>            
+            <div>{{ course.timer }}</div>
+        </div>
+        
+        <p>You have completed the course.</p>
+        <p>You scored {{ result.numCorrect }} out of {{ result.totalQuestions }} for a score of {{ result.percentageScore }}.</p>
+        <div class="buttons" style="width: 190px; margin: 40px auto 20px;">
+            <button class="btn btn-primary" ng-click="CloseCourse()">Close Course</button>
+        </div>        
+
+    </div>    
+    
+ 
+</div>

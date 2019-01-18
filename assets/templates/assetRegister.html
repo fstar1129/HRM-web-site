@@ -1,0 +1,352 @@
+<ng-include src="'assets/templates/siteNavigation.html'"></ng-include>
+
+<style>
+    .md-tabs.md-default-theme md-ink-bar, md-tabs md-ink-bar { background: none; }
+    fieldset { width: 100%; }
+    .md-padding { padding: 0; }
+    textarea { border: 1px solid #b6dde7;  width: 100%; height: 80px; border-radius: 4px; padding: 0 5px; }
+    .center { text-align: center;}
+    .autocomplete input { border: none; background-color: transparent; }
+    
+    
+    input.md-datepicker-input {
+        display: block;
+        width: 100%;
+        height: 32px;
+        padding: 6px 12px;
+        font-size: 14px;
+        line-height: 1.42857143;
+        color: #555;
+        background-color: #fff;
+        background-image: none;
+        border: 0 solid #b3dce6;
+        border-radius: 4px;
+        -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+        box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+        -webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
+        -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+        transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s; 
+    }
+
+    .field-container { display: flex; flex-direction: row; border: 1px solid #b3dce6; height: 34px;  border-radius: 4px;    }    
+    .field-container .field { width: 100%; }
+    
+    .field-container .icon { padding: 6px 12px; font-size: 14px; font-weight: normal; line-height: 1; color: #555; text-align: center; background-color: #eee; border: 0px solid #ccc; border-left: 1px solid #b3dce6; border-radius: 0;  }    
+    .field-container .icon button { min-width: 20px; } 
+    
+    .radioset-wrapper { display: flex; flex-direction: row; }
+    .radioset { display: flex; flex-direction: row; align-items: center; margin: 0 6px 0;}
+    .radioset input[type="radio"] { margin: 0 5px 0 0; height: 16px; width: 16px; }
+    
+    .md-datepicker-input-container { border-bottom: none; }
+    button.new-hs { float: right; margin-bottom: 5px; }
+    md-tab-item span { opacity: 0;}
+    .buttons { justify-content: center; }
+    
+    fieldset[disabled="disabled"] textarea,
+    fieldset[disabled="disabled"] .field,
+    fieldset[disabled="disabled"] input { background-color: #EEE;}
+    
+    .form-group { display: flex; align-items: center;}
+    
+     @media only screen and (max-width: 600px) {
+         .container { padding: 0 !important; }         
+     }
+     
+    .md-whiteframe-1dp, .md-whiteframe-z1 {
+        box-shadow: none;
+        border: 1px solid #b6dde7;
+        border-radius: 6px;
+        height: 36px;
+    }  
+    md-autocomplete input:not(.md-input) {
+        height: 34px;
+    }
+    md-autocomplete button {
+        margin-right: -20px;
+    }
+    
+    md-virtual-repeat-container:first-child {
+        background-color: red !important;
+    }
+    
+    /*.course-supervisor md-virtual-repeat-container.md-autocomplete-suggestions-container {*/
+    .md-virtual-repeat-container.md-autocomplete-suggestions-container {
+        border-top: none;
+        border-radius: 0;
+        box-shadow: 0px 7px 14px rgba(0,0,0,.25) !important;
+    }     
+    
+    .icon button { background-color: transparent; border: none; }
+    
+    .assetregisterhistory-grid {
+        height: 250px;
+        margin-top: 20px;
+    }
+     
+</style>
+
+<div class="container" id="hazardoussubstance">
+    <h3>{{pageTitle}}</h3>
+
+    <button class="new-hs btn btn-primary" ng-click="newAR()">New</button> 
+    <div class="clear"></div>
+    <div class="grid assetregister-grid" external-scopes="clickHandler" ui-grid="gridOptionsComplex" ui-grid-edit ui-grid-resize-columns ui.grid.selection></div>
+
+    <form name="assetregisterform" ng-class="{'disabled': formEnabled == 0}">
+
+    <!-- --------------- Detail area ------------->
+    <md-content>
+        <md-tabs md-dynamic-height md-border-bottom>
+            <md-tab label="Asset Register">
+                <md-content class="md-padding">
+
+                    <div id="tab1" class="tab-pane fade in active">
+                        <fieldset ng-disabled="formEnabled == 0">
+                        <div class="col-md-12 tabborder">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    
+                                    <div class="form-group row">
+                                        <label class="control-label col-sm-4" for="purchase_date">Select action</label>
+                                        <div class="col-sm-8 radioset-wrapper" >
+                                            <div class="radioset">
+                                                <input type="radio" name="action" ng-model="ar.action" value="3" ng-change="clearFields(3)"> Schedule service
+                                            </div>                                            
+                                            <div class="radioset">
+                                                <input type="radio" name="action" ng-model="ar.action" value="1" ng-change="clearFields(1)"> Test & Tag
+                                            </div>
+                                            <div class="radioset">
+                                                <input type="radio" name="action" ng-model="ar.action" value="2" ng-change="clearFields(2)"> Service & Repair
+                                            </div>
+                                            
+                                        </div>
+                                    </div>                                       
+
+                                    <emp-field fld-label="Plant name" ng-model="ar.name" ng-required="formEnabled == 1"></emp-field>
+                                    <emp-field fld-label="Manufacturer" ng-model="ar.manufacturer" ng-required="formEnabled == 1"></emp-field>
+                                    <emp-field fld-label="Serial" ng-model="ar.serial" ng-required="formEnabled == 1"></emp-field> 
+                                    
+                                    <div class="form-group row">
+                                        <label class="control-label col-sm-4" for="purchase_date">Purchase date</label>
+                                        <div class="col-sm-8">
+                                            <div class="field-container" ng-class="formEnabled==1 && ar.purchase_date.$valid == false ?'invalid' : ''">
+                                                <div class="field">
+                                                    <md-datepicker ng-model="ar.purchase_date" md-current-view="year" md-placeholder="" md-hide-icons="all" md-is-open="assetregisterpd.isOpen"></md-datepicker>
+                                                </div>
+                                                <div class="icon">
+                                                    <button ng-click="assetregisterpd.isOpen = true">
+                                                        <span class="glyphicon glyphicon-calendar"></span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>                                    
+                                    
+                                    
+                                    
+                                    <emp-field fld-label="Cost" ng-model="ar.cost" ng-required="formEnabled == 1"></emp-field>
+                                    
+                                    <div class="form-group row">
+                                        <label class="control-label col-sm-4" for="state">Site Location</label>
+                                        <div class="col-sm-8">
+                                            <autocomplete class="form-control" id="site_location_id" name="site_location_id" ng-model="site_location_id" attr-placeholder="Please type site name..." click-activation="true" data="site_list" on-type="doChangeSite" on-select="doSelectedSite"></autocomplete>
+                                        </div>
+                                    </div>      
+                                    
+                                    <div class="form-group row">
+                                        <label class="control-label col-sm-4" for="state">Department</label>
+                                        <div class="col-sm-8">
+                                            <select class="form-control" ng-model="ar.department_id" ng-required="formEnabled == 1" ng-init="ar.department_id=''">
+                                                <option value="">Please select..</option>
+                                                <option value="{{s.id}}" ng-repeat="s in departmentList">{{ s.display_text }}</option>
+                                            </select>                                            
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group row">
+                                        <label class="control-label col-sm-4" for="state">Additional comments</label>
+                                        <div class="col-sm-8">
+                                            <textarea class='' ng-model='ar.additional_comments' ng-required="formEnabled == 1"></textarea>
+                                        </div>
+                                    </div>                                       
+
+
+                                </div>
+                                <div class="col-md-6">
+                                    
+                                    <fieldset ng-disabled="ar.action != 3">
+                                        <div class="scheduleservicedate">
+                                            <div class="form-group row">
+                                                <label class="control-label col-sm-4" for="service_schedule_date">Service schedule date</label>
+                                                <div class="col-sm-8">
+                                                    <div class="field-container" ng-class="formEnabled==1 && assetregister.service_schedule_date.$valid == false ? 'invalid' : ''">
+                                                        <div class="field">
+                                                            <md-datepicker ng-model="ar.service_schedule_date" name="service_schedule_date" md-current-view="year" md-placeholder="" md-hide-icons="all" md-is-open="assetregistersrvdate.isOpen"></md-datepicker>
+                                                        </div>
+                                                        <div class="icon">
+                                                            <button ng-click="assetregistersrvdate.isOpen = true">
+                                                                <span class="glyphicon glyphicon-calendar"></span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                            </div>   
+
+                                        </div>
+                                    </fieldset>                                    
+                                    
+                                    
+                                    <fieldset ng-disabled="ar.action != 1">
+                                        <div class="testandtag">
+                                            <div class="form-group row">
+                                                <label class="control-label col-sm-4" for="inspected_date">Date inspected</label>
+                                                <div class="col-sm-8">
+                                                    <div class="field-container" ng-class="formEnabled==1 && ar.inspected_date.$valid == false ? 'invalid' : ''">
+                                                        <div class="field">
+                                                            <md-datepicker ng-model="ar.inspected_date" name="inspected_date" md-current-view="year" md-placeholder="" md-hide-icons="all" md-is-open="assetregisterid.isOpen" ></md-datepicker>
+                                                        </div>
+                                                        <div class="icon">
+                                                            <button ng-click="assetregisterid.isOpen = true">
+                                                                <span class="glyphicon glyphicon-calendar"></span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                            </div>   
+
+
+                                            <div class="form-group row">
+                                                <label class="control-label col-sm-4" for="state">Test result</label>
+                                                <div class="col-sm-8">
+                                                    <select class="form-control" ng-model="ar.test_result_id" ng-init="ar.test_result_id=''">
+                                                        <option value="">Please select..</option>
+                                                        <option value="{{s.id}}" ng-repeat="s in testresultList">{{ s.display_text }}</option>
+                                                    </select>                                            
+                                                </div>
+                                            </div>      
+                                            
+                                            
+                                            
+                                            
+                                             <div class="form-group row">
+                                                <label class="control-label col-sm-4" for="state">Test frequency</label>
+                                                <div class="col-sm-8">
+                                                    <select class="form-control" ng-model="ar.test_frequency_id" ng-init="ar.test_frequency_id=''">
+                                                        <option value="">Please select..</option>
+                                                        <option value="{{s.id}}" ng-repeat="s in testfrequencyList">{{ s.display_text }}</option>
+                                                    </select>                                            
+                                                </div>
+                                            </div>                                      
+
+                                            <div class="form-group row">
+                                                <label class="control-label col-sm-4" for="state">Who inspected</label>
+                                                <div class="col-sm-8">
+                                                    <md-autocomplete flex                  
+                                                        md-input-name="who_inspected"
+                                                        md-no-cache="ar.noCache"
+                                                        md-selected-item="who_inspected"
+                                                        md-search-text="ar.searchText"
+                                                        md-selected-item-change="selectSupervisor()"
+                                                        md-items="item in querySearch(ar.searchText)"
+                                                        md-item-text="item.display"
+                                                        >
+                                                        <md-item-template>
+                                                            <span md-highlight-text="ar.searchText">{{item.display}}</span>
+                                                        </md-item-template>
+                                                    </md-autocomplete> 
+                                         
+                                                </div>
+                                            </div>                                         
+
+                                            <div class="form-group row">
+                                                <label class="control-label col-sm-4" for="next_test_date">Next test date</label>
+                                                <div class="col-sm-8">
+                                                    <div class="field-container" ng-class="formEnabled==1 && ar.next_test_date.$valid == false ?'invalid' : ''">
+                                                        <div class="field">
+                                                            <md-datepicker ng-model="ar.next_test_date" md-current-view="year" md-placeholder="" md-hide-icons="all" md-is-open="assetregisterntd.isOpen"></md-datepicker>
+                                                        </div>
+                                                        <div class="icon">
+                                                            <button ng-click="assetregisterntd.isOpen = true">
+                                                                <span class="glyphicon glyphicon-calendar"></span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                            </div>                                          
+
+
+
+                                        </div>
+                                    </fieldset>
+                                    <fieldset ng-disabled="ar.action != 2 && ar.action != 3">
+                                        <div class="serviceandrepair">
+
+                                            <emp-field fld-label="Service provider" ng-model="ar.service_provider" ></emp-field>
+
+                                            <div class="form-group row">
+                                                <label class="control-label col-sm-4" for="service_date">Date serviced/repaired</label>
+                                                <div class="col-sm-8">
+                                                    <div class="field-container" ng-class="formEnabled==1 && ar.service_date.$valid == false ?'invalid' : ''">
+                                                        <fieldset ng-disabled="ar.action != 2">
+                                                            <div class="field" style="height:32px;">                                                            
+                                                                <md-datepicker ng-model="ar.service_date" md-current-view="year" md-placeholder="" md-hide-icons="all" md-is-open="assetregistersd.isOpen" ></md-datepicker>                                                            
+                                                            </div>
+                                                        </fieldset>
+                                                        <div class="icon">
+                                                            <button ng-click="assetregistersd.isOpen = true">
+                                                                <span class="glyphicon glyphicon-calendar"></span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                            <emp-field fld-label="Phone number" ng-model="ar.service_phone_number" ></emp-field>
+                                            <emp-field fld-label="Address" ng-model="ar.service_address" ></emp-field>
+
+                                        </div>                                    
+                                    </fieldset>
+
+                                    <emp-field fld-label="" fld-type="hidden" ng-model="ar.id"></emp-field>
+                                    <emp-field fld-label="" fld-type="hidden" ng-model="ar.account_id"></emp-field>
+                                    <emp-field fld-label="" fld-type="hidden" ng-model="ar.updated_by"></emp-field>
+                                    <emp-field fld-label="" fld-type="hidden" ng-model="ar.created_by"></emp-field>
+                                    <emp-field fld-type="hidden" fld-label="" ng-model="ar.site_location_id"></emp-field> 
+                                </div>
+                            </div>
+                        </div>
+                        </fieldset>
+                    </div>
+
+                </md-content>
+          </md-tab>
+
+      </md-content>
+    
+        <div class="userMessage">&nbsp;
+            <div id="log_er_msg"></div>
+            <div id="login_error" class="col-xs-12" ng-show="showMessage == 1" style="float: none;">
+                <div class="alert {{ success == 1 ? 'alert-success' : 'alert-danger'}} alert-dismissable" style="padding-right: 45px;">
+                    <i class="fa fa-ban"></i>
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true" ng-click="showMessage = 0;">&times;</button>  
+                    {{ userMessage }}
+                </div>
+            </div>
+        </div>        
+
+      <div class="buttons">
+          <button ng-click="saveAR()" value="Submit" class="btn btn-primary" ng-class="{'disabled': assetregisterform.$invalid == true}" ng-disabled="assetregisterform.$invalid || formEnabled == 0">Submit</button>
+          <button class="btn btn-info" ng-click="clearForm()" ng-disabled="formEnabled == 0" style="margin-left: 5px;">Clear</button>
+      </div>
+    <!--
+      <div class="grid assetregisterhistory-grid" external-scopes="clickHandler" ui-grid="gridOptionsComplexHistory" ui-grid-edit ui-grid-resize-columns ui.grid.selection></div>
+    -->
+
+    <!-- --------------- END: Detail area ------------->
+    </form>
+
+</div>

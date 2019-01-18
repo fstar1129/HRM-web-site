@@ -1,0 +1,241 @@
+<ng-include src="'assets/templates/siteNavigation.html'"></ng-include>
+<link rel="stylesheet" href="assets/css/dashboard.css" type="text/css" media="all">
+
+<div class="container" ng-init="init()">
+ <div ng-show="!isAllowed">
+     <h1></h1>
+ </div>
+<div ng-show="isAllowed">
+    <h2>HR DASHBOARD</h2>
+    <div class="row">
+        <div class="col-lg-3">
+        
+            <div ng-show="isDepartmentListExist">
+                <div external-scopes="clickHandler" ui-grid="gridOptionsComplexDprt" ng-style="{height: department_length+'px'}"></div> 
+            </div>
+            <div ng-show="isLocationListExist">
+                <div external-scopes="clickHandler" ui-grid="gridOptionsComplexLtn" ng-style="{height: location_length+'px'}"></div> 
+            </div>
+            <div ng-show="isEmployeeListExist">
+                <div external-scopes="clickHandler" ui-grid="gridOptionsComplexEply" ng-style="{height: employees_length+'px'}"></div> 
+            </div>
+            <div ng-hide="!isYearListExist" style="border:1px solid lightgray;padding:5px;">
+                <div class="row">
+                    <div class="col-sm-3">
+                            <label for="option" style="margin-left: 18px;margin-top:5px;">Years</label>
+                    </div>
+                    <div class="col-sm-9">
+                            <select class="form-control" id="option" ng-model="Option" ng-options="x for x in years" ng-click="sendYrReq(Option)" style="width:100%;">
+                            </select>
+                    </div>
+                </div>  
+            </div>
+        </div>
+
+        <!-- <div class="col-sm-9 chart-container"> -->
+
+        <div class="col-lg-6 chart-left">
+
+            <div class="row">
+                <div  class="col-sm-6">
+                        <div style = "padding:10px 0;">
+                                <div class="char-title"> 
+                            Summary for year {{currentYear}}
+                        </div>
+                    </div>
+                    <div class="charts table-responsive" style = "padding:2px; padding-bottom: 0px;">
+                        <table class = "table-bordered" style = "text-align: center;margin-bottom: 2px;width:100%;height:245px;">
+                            <tr ng-repeat="x in summaryItems">
+                                <td style = "background-color: lightblue; width: 50%;">{{x}}</td>
+                                <td> {{summary[x] === null? 0:summary[x]}}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div  class="col-sm-6">
+                        <div style = "padding:10px 0;">
+                            <div class="char-title"> 
+                                Total Employees
+                            </div>
+                        </div>
+                        <div class="charts">
+                            <canvas id="bar" class="chart chart-bar"
+                                chart-data="totalBarData" chart-labels="totalBarLabels" 
+                                chart-series="totalBarSeries" chart-colors="totalBarColors" chart-dataset-override="totalBarOverride"
+                                >
+                            </canvas>
+                        </div>
+                        
+                </div>
+            </div>
+
+            <div class="row">
+                <div  class="col-sm-6">
+                    <div style = "padding:10px 0;">
+                        <div class=" char-title">
+                            Employee count,{{currentDepartment}}
+                        </div>
+                    </div>
+                    <div class="charts">
+                        <canvas id="bar" class="chart chart-bar"
+                            chart-data="departmentBarData" chart-labels="departmentBarLabels" chart-series="departmentBarSeries" chart-colors="departmentBarColors">
+                        </canvas>
+                    </div>
+                </div>
+                <div  class="col-sm-6">
+                        <div style = "padding:10px 0;">
+                                <div class="char-title"> 
+                                        Employee count,{{currentLocation}}
+                                </div>
+                        </div>
+                        <div class="charts">
+                                <canvas id="bar" class="chart chart-bar"
+                                    chart-data="LocationBarData" chart-labels="LocationBarLabels" chart-series="LocationBarSeries"  chart-colors="locationBarColors">
+                                </canvas>
+                        </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div  class="col-sm-6">
+                        <div style = "padding:10px 0;">
+                            <div class="char-title"> 
+                                Employees by department,{{currentYear}}
+                            </div>
+                        </div>
+                        <div class="charts" ng-style="{'height': departmentPieHeight}">                            
+                            <canvas id="pie" class="chart chart-pie"
+                                chart-data="departmentPieData" chart-labels="departmentPieLabels" chart-options="departmentPieOptions">
+                            </canvas>
+                        </div>
+                </div>
+                <div  class="col-sm-6">
+                        <div style = "padding:10px 0;">
+                            <div class="char-title"> 
+                                Employees by location,{{currentYear}}
+                            </div>
+                        </div>
+                        <div class="charts" ng-style="{'height': locationPieHeight}">
+                            <canvas id="pie" class="chart chart-pie"
+                                chart-data="locationPieData" chart-labels="locationPieLabels" chart-options="locationPieOptions">
+                            </canvas> 
+                        </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div  class="col-sm-6">
+                    <div style = "padding:10px 0;">
+                        <div class="char-title"> 
+                                Employee information
+                        </div>
+                    </div>
+                    <div class="bottom-charts">
+                        <div class="row">
+                            <div class="col-sm-12" style="text-align: center;">Name: <span style="font-size: larger;">{{employeeName}}</span></div>                            
+                        </div>
+                        <div style = "margin-left: 5px; margin-right: 5px;">
+                            <div class="row">
+                                <div class="col-sm-12" style = "padding:0px;">         
+                                    <div class="table-responsive">
+                                        <table class="table-bordered"  style = "text-align: center; width: 100%; height: 200px;">
+                                            <tr ng-repeat="x in employeePropsLeft">
+                                                <td  style = "background-color: lightblue;  width: 40%;">
+                                                        {{x}}
+                                                </td>
+                                                <td>
+                                                        {{employee[x]}}
+                                                </td>
+                                            </tr>
+                                            <tr ng-repeat="x in employeePropsRight">
+                                                <td  style = "background-color: lightblue;  width: 40%;">
+                                                        {{x}}
+                                                </td>
+                                                <td>
+                                                        {{employee[x]}}
+                                                </td>
+                                            </tr>
+                                        </table>     
+                                    </div>                  
+                                </div>
+                            </div> 
+                        </div>
+                    </div>
+                </div>
+                <div  class="col-sm-6">
+                        <div style = "padding:10px 0;">
+                            <div class="char-title"> 
+                                Employee total compensation
+                            </div>
+                        </div>
+                        <div class="charts">
+                                <canvas id="compensationBar" class="chart chart-bar"
+                                chart-data="compensationBarData" chart-labels="compensationBarLabels" chart-series="compensationBarSeries" chart-colors="compensationBarColors"
+                                >
+                                </canvas>
+                        </div>
+                </div>
+            </div>
+            
+
+        </div>
+
+
+        <div class="col-lg-3">
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div style = "padding:10px 0;">
+                        <div class="char-title">
+                            Compensation distribution by department,{{currentYear}}
+                        </div>
+                        </div>
+                    <div class="charts" ng-style="{'height': departmentCompensationHeight}">
+                            <canvas id="departmentCompensation" class="chart-horizontal-bar"
+                                chart-data="departmentCompensationData" chart-labels="departmentCompensationLabels" 
+                                chart-series="departmentCompensationBarSeries" chart-options="departmentCompensationOptions" chart-colors="departmentCompensationColors">
+                        </canvas> 
+                    </div>
+                </div>
+            <!-- </div> -->
+
+
+            <!-- <div class="row"> -->
+                <div class="col-sm-12">
+                    <div style = "padding:10px 0;">
+                        <div class="char-title">
+                            Compensation distribution by location,{{currentYear}}
+                        </div>
+                    </div>
+                    <div class="charts" ng-style="{'height': locationCompensationHeight}">
+                            <canvas id="locationCompensation" class="chart-horizontal-bar"
+                                chart-data="locationCompensationData" chart-labels="locationCompensationLabels" 
+                                chart-series="locationCompensationBarSeries" chart-options="locationCompensationOptions"
+                                width="200" height="150">
+                            </canvas> 
+                    </div>
+                </div>
+            <!-- </div> -->
+
+            <!-- <div class="row"> -->
+                <div class="col-sm-12">
+                    <div style = "padding:10px 0;">
+                        <div class="char-title">
+                            Employee count by base salary brackets,{{currentYear}}
+                        </div>
+                    </div>
+                    <div class="charts">
+                            <canvas id="base" class="chart-horizontal-bar"
+                                chart-data="baseSalaryData" chart-labels="baseSalaryLabels" chart-series="baseSalarySeries" chart-colors="baseSalaryColors"
+                                width="200" height="150">
+                            </canvas> 
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+</div>
+</div>

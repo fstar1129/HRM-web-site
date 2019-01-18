@@ -1,0 +1,221 @@
+<ng-include src="'assets/templates/siteNavigation.html'"></ng-include>
+
+<style>
+    .md-tabs.md-default-theme md-ink-bar, md-tabs md-ink-bar { background: none; }
+    fieldset { width: 99%; }
+    .md-padding { padding: 0; }
+    textarea { border: 1px solid #b6dde7;  width: 100%; height: 92px; border-radius: 4px; padding: 0 5px; }
+    .center { text-align: center;}
+    .autocomplete input { border: none; background-color: transparent; }
+    
+    small { font-size: 75%; font-weight: 400; opacity: .7; }
+    input, select { width: 100%; }
+    .time-group { display: flex; flex-direction: row; }
+    .time-group select { flex: 1; }
+    .time-group select:first-child { margin-right: 5px; }
+    input, select, textarea { border: 1px solid #b6dde7; }
+    md-tab-item span { opacity: 0;}
+    .text-edit { font-size: 18px; color: #000; }
+    .text-edit:hover { cursor: pointer; opacity: .7; }
+    .text-danger { font-size: 18px; }
+    .text-danger { cursor: pointer; opacity: .7; }    
+    
+    input.md-datepicker-input {
+        display: block;
+        width: 100%;
+        height: 32px;
+        padding: 6px 12px;
+        font-size: 14px;
+        line-height: 1.42857143;
+        color: #555;
+        background-color: #fff;
+        background-image: none;
+        border: 0 solid #b3dce6;
+        border-radius: 4px;
+
+        -webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
+        -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+        transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+    }
+
+    .field-container { display: flex; flex-direction: row; border: 1px solid #b3dce6; height: 34px;  border-radius: 4px;    }    
+    .field-container .field { width: 100%; }
+    
+    .field-container .icon { padding: 6px 12px; font-size: 14px; font-weight: normal; line-height: 1; color: #555; text-align: center; background-color: #eee; border: 0px solid #ccc; border-left: 1px solid #b3dce6; border-radius: 0;  }    
+    .field-container .icon button { min-width: 20px; } 
+    
+    .radioset-wrapper { display: flex; flex-direction: row; }
+    .radioset { display: flex; flex-direction: row; align-items: center; margin: 0 6px 0;}
+    .radioset input[type="radio"] { margin: 0 5px 0 0; height: 16px; width: 16px; }
+    
+    .md-datepicker-input-container { border-bottom: none; }
+    button.new-ir { float: right;  }
+
+    .buttons { justify-content: center; }
+    
+    fieldset[disabled="disabled"] textarea,
+    fieldset[disabled="disabled"] select,
+    fieldset[disabled="disabled"] .field,
+    fieldset[disabled="disabled"] input { background-color: #EEE;}
+    
+    .form-group { display: flex; align-items: center;}
+    
+     @media only screen and (max-width: 600px) {
+         .container { padding: 0 !important; }         
+     }
+     
+    .md-whiteframe-1dp, .md-whiteframe-z1 {
+        box-shadow: none;
+        border: 1px solid #b6dde7;
+        border-radius: 6px;
+        height: 36px;
+    }  
+    md-autocomplete input:not(.md-input) {
+        height: 34px;
+    }
+    md-autocomplete button {
+        margin-right: -20px;
+    }
+    
+    md-virtual-repeat-container:first-child {
+        background-color: red !important;
+    }
+    
+    /*.course-supervisor md-virtual-repeat-container.md-autocomplete-suggestions-container {*/
+    .md-virtual-repeat-container.md-autocomplete-suggestions-container {
+        border-top: none;
+        border-radius: 0;
+        box-shadow: 0px 7px 14px rgba(0,0,0,.25) !important;
+    }
+    
+    .icon button { background-color: transparent; border: none; }
+    
+    .injuryregister-grid {
+        height: 250px;
+        margin-top: 5px;
+    }
+    
+     td{
+         border-style:none !important;
+     }
+     
+</style>
+
+<div class="container" id="injuryregister">
+    <h3>{{pageTitle}}</h3>
+    
+    <div class="clear"></div>
+    <div class="grid injuryregister-grid" external-scopes="clickHandler" ui-grid="gridOptionsComplex" ui-grid-edit ui-grid-resize-columns ui.grid.selection></div>
+    
+    <form name="performanceform" ng-class="{'disabled': formEnabled == 0}" novalidate>
+    
+    
+    <md-content>
+        <md-tabs md-dynamic-height md-border-bottom>
+            <md-tab label="Create or Edit Form">
+                <md-content class="md-padding">
+
+                    <div id="tab1" class="tab-pane fade in active">
+                        <fieldset ng-disabled="formEnabled == 0">
+                        <div class="col-md-12 tabborder"  style="border-width:0px;">
+                            
+                            
+                            <div class="row">
+                                <table class="table table-striped" id="course_table" style="table-layout: fixed; width: 100%; margin-bottom:0;border: 1px solid rgb(138, 138, 138)">
+                                    <thead style="background-color: #b3dce6; color: white;">
+                                        <tr>
+                                            <th style="text-align: center;width:5%;vertical-align: text-top"></th>
+                                            <th style="text-align: center;width:50%;vertical-align: text-top">Criteria</th>
+                                            <th style="text-align: center;width:45%;vertical-align: text-top">
+                                                <div style="width:19%;display:inline-block">Poor</div>
+                                                <div style="width:19%;display:inline-block">Passable</div>
+                                                <div style="width:19%;display:inline-block">Average</div>
+                                                <div style="width:19%;display:inline-block">Good</div>
+                                                <div style="width:19%;display:inline-block">Excellent</div>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody ng-if="formEnabled">
+                                        <tr style="border: 0px solid rgb(138, 138, 138) !important" ng-repeat-start="question in standardQuestionList">
+                                            <td style="text-align: center;width:5%;vertical-align: middle;word-wrap: break-word">
+                                                {{$index + 1}}
+                                            </td>
+                                            <td style="width:50%;vertical-align: middle;word-wrap: break-word">
+                                                <h5>{{question.question_text}}</h5>
+                                                    
+                                            </td>
+                                            <td style="text-align: center;width:45%;vertical-align: middle;word-wrap: break-word;padding-left:4%">
+                                                <md-radio-group layout="row" ng-model="scoreList[$index].score" ng-required="true"> 
+                                                    <md-radio-button value="0" style="width:22%" ng-disabled="edit_option == 0"></md-radio-button>
+                                                    <md-radio-button value="1" style="width:22%" ng-disabled="edit_option == 0"></md-radio-button>
+                                                    <md-radio-button value="3" style="width:22%" ng-disabled="edit_option == 0"></md-radio-button>
+                                                    <md-radio-button value="4" style="width:22%" ng-disabled="edit_option == 0"></md-radio-button>
+                                                    <md-radio-button value="5" style="width:16%" ng-disabled="edit_option == 0"></md-radio-button>
+                                                </md-radio-group>
+                                            </td>
+                                        </tr>
+                                        <tr ng-repeat-end style="border-width:0px 0px 0.8px 0px; border-color:rgb(221, 221, 221); border-style:solid">
+                                            <td></td>
+                                            <td colspan ="2">
+                                                <textarea class="form-control" ng-model="commentList[$index].comment"
+                                                    placeholder="Enter Comment..." rows="1" ng-disabled="edit_option == 0">
+                                                </textarea>
+                                            </td>
+                                        </tr>
+                                        <tr style="border: 0px solid rgb(138, 138, 138)" ng-repeat-start="question in specializedQuestionList">
+                                            <td style="text-align: center;width:5%;vertical-align: middle;word-wrap: break-word">
+                                                {{$index + 13}}
+                                            </td>
+                                            <td style="width:50%;vertical-align: middle;word-wrap: break-word">
+                                                <h5>{{question.question_text}}</h5>
+                                            </td>
+                                            <td style="text-align: center;width:45%;vertical-align: middle;word-wrap: break-word;padding-left:4%">
+                                                <md-radio-group layout="row" ng-model="scoreList[$index + 12].score" ng-required="true"> 
+                                                    <md-radio-button value="0" style="width:22%" ng-disabled="edit_option == 0"></md-radio-button>
+                                                    <md-radio-button value="1" style="width:22%" ng-disabled="edit_option == 0"></md-radio-button>
+                                                    <md-radio-button value="3" style="width:22%" ng-disabled="edit_option == 0"></md-radio-button>
+                                                    <md-radio-button value="4" style="width:22%" ng-disabled="edit_option == 0"></md-radio-button>
+                                                    <md-radio-button value="5" style="width:16%" ng-disabled="edit_option == 0"></md-radio-button>
+                                                </md-radio-group>
+                                            </td>
+                                        </tr>
+                                        <tr ng-repeat-end style="border-width:0px 0px 0.8px 0px; border-color:rgb(221, 221, 221); border-style:solid">
+                                            <td></td>
+                                            <td colspan ="2">
+                                                <textarea class="form-control" ng-model="commentList[$index + 12].comment"
+                                                    placeholder="Enter Comment..." rows="1" ng-disabled="edit_option == 0">
+                                                </textarea>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        </fieldset>
+                    </div>
+
+                </md-content>
+          </md-tab>
+
+      </md-content>
+    
+        <div class="userMessage">&nbsp;
+            <div id="log_er_msg"></div>
+            <div id="login_error" class="col-xs-12" ng-show="showMessage == 1" style="float: none;">
+                <div class="alert {{ success == 1 ? 'alert-success' : 'alert-danger'}} alert-dismissable" style="padding-right: 45px;">
+                    <i class="fa fa-check"></i>
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true" ng-click="showMessage = 0;">&times;</button>  
+                    {{ userMessage }}
+                </div>
+            </div>
+        </div>        
+        
+      <div class="buttons">
+          <button ng-click="saveFormReview()" value="Submit" class="btn btn-primary" ng-class="{'disabled': performanceform.$invalid == true}" ng-disabled="performanceform.$invalid || formEnabled == 0 || perms.performancereview.write == 0 || edit_option == 0" style="margin-left: 5px;">Submit</button>
+          <button class="btn btn-info" ng-click="clearForm()" ng-disabled="formEnabled == 0 || perms.performancereview.write == 0 || edit_option == 0" style="margin-left: 5px;">Clear</button>
+      </div>
+
+    <!-- --------------- END: Detail area -------------->
+    </form>
+
+</div>

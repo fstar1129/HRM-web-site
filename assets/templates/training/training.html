@@ -1,0 +1,289 @@
+<ng-include src="'assets/templates/siteNavigation.html'"></ng-include>
+
+<div class="container" id="employees">
+    <h3>{{pageTitle}}</h3>
+
+    <button class="new-emp btn btn-primary" ng-click="newEmployee()">Add New</button>
+    <div class="clear"></div>
+    <div class="grid employee-grid" external-scopes="clickHandler" ui-grid="gridOptionsComplex" ui-grid-edit ui-grid-resize-columns ui.grid.selection></div>
+
+    <form name="empform" ng-class="{'disabled': formEnabled == 0}">
+
+    <!-- --------------- Detail area ------------->
+    <md-content>
+        <md-tabs md-dynamic-height md-border-bottom>
+            <md-tab label="personal detail">
+                <md-content class="md-padding">
+
+                    <div id="tab1" class="tab-pane fade in active">
+                        <fieldset ng-disabled="formEnabled == 0">
+                        <div class="col-md-12 tabborder">
+                            <div class="row">
+                                <div class="col-md-6">
+
+                                    <emp-field fld-label="First Name" ng-model="emp.firstname" ng-required="formEnabled == 1"></emp-field>
+                                    <emp-field fld-label="Last Name" ng-model="emp.lastname" ng-required="formEnabled == 1"></emp-field>
+                                    <emp-field fld-label="Email" ng-model="emp.email" ng-required="formEnabled == 1"></emp-field>
+                                    <emp-field fld-label="Address" ng-model="emp.address1" ng-required="formEnabled == 1"></emp-field>
+                                    <emp-field fld-label="Suburb" ng-model="emp.suburb" ng-required="formEnabled == 1"></emp-field>
+
+
+                                    <div class="form-group row">
+                                        <label class="control-label col-sm-4" for="state">State</label>
+                                        <div class="col-sm-8">
+                                            <select class="form-control" ng-model="emp.state" ng-required="formEnabled == 1">
+                                                <option value="{{s.id}}" ng-repeat="s in stateList">{{ s.display_text }}</option>
+                                            </select>
+                                            <span id="errormsg_emp_state_id" style="display:none;" class="text-danger">Select State</span>
+                                        </div>
+                                    </div>
+
+                                    <emp-field fld-label="Postcode" ng-model="emp.postcode" ng-required="formEnabled == 1"></emp-field>
+
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group row">
+                                        <label class="control-label col-sm-4" for="title">Title</label>
+                                        <div class="col-sm-8">
+                                            <select class="form-control" ng-model="emp.title" ng-required="formEnabled == 1">
+                                                <option value="{{p.id}}" ng-repeat="p in personList">{{ p.display_text }}</option>
+                                            </select>
+                                            <span id="errormsg_emp_title" style="display:none;" class="text-danger">Select Title</span>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="control-label col-sm-4" for="gender">Gender</label>
+                                        <div class="col-sm-8">
+                                            <select class="form-control" ng-model="emp.gender" ng-required="formEnabled == 1">
+                                                <option value=""></option>
+                                                <option value="M">Male</option>
+                                                <option value="F">Female</option>
+                                            </select>
+                                            <span id="errormsg_emp_gender" style="display:none;" class="text-danger">Select Gender</span>
+                                        </div>
+                                    </div>
+
+                                    <emp-field fld-label="Phone" ng-model="emp.telephone" ng-required="formEnabled == 1"></emp-field>
+
+
+                                    <div class="form-group row">
+                                        <label class="control-label col-sm-4" for="dob">Date of Birth</label>
+                                        <div class="col-sm-8">
+                                            <div class="field-container" ng-class="formEnabled==1 && empform.dob.$valid == false ?'invalid' : ''">
+                                                <div class="field">
+                                                    <md-datepicker name="dob" ng-model="emp.dob" md-current-view="year" md-placeholder="" md-hide-icons="all" md-is-open="empdob.isOpen" ng-required="formEnabled == 1"></md-datepicker>
+                                                </div>
+                                                <div class="icon">
+                                                    <button ng-click="empdob.isOpen = true">
+                                                        <span class="glyphicon glyphicon-calendar"></span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <span id="errormsg_emp_dob" style="display:none;" class="text-danger">Enter Date of Birth</span>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="control-label col-sm-4" for="nationality">Nationality</label>
+                                        <div class="col-sm-8">
+                                            <select class="form-control" ng-model="emp.nationality" ng-required="formEnabled == 1">
+                                                <option value="{{c.id}}" ng-repeat="c in countryList">{{ c.display_text }}</option>
+                                            </select>
+                                            <span id="errormsg_emp_nationality" style="display:none;" class="text-danger">Select Nationality</span>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="control-label col-sm-4" for="emp_visa_type">VISA Type</label>
+                                        <div class="col-sm-8">
+                                            <input type="text" class="form-control" ng-model="emp.visatype"  ng-required="formEnabled == 1">
+                                            <span id="errormsg_emp_visa_type" style="display:none;" class="text-danger">Enter VISA Type</span>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="control-label col-sm-4" for="visaexpiry">Visa Expiry</label>
+                                         <div class="col-sm-8">
+                                                 <div class="field-container" ng-class="formEnabled == 1 && !empform.visaexpiry.$valid ? 'invalid' : ''">
+                                                     <div class="field">
+                                                         <md-datepicker name="visaexpiry" ng-model="emp.visaexpiry" md-current-view="year" md-placeholder="" md-hide-icons="all" md-is-open="empvisa.isOpen"  ng-required="formEnabled == 1"></md-datepicker>
+                                                     </div>
+                                                     <div class="icon">
+                                                         <button ng-click="empvisa.isOpen = true">
+                                                             <span class="glyphicon glyphicon-calendar"></span>
+                                                         </button>
+                                                     </div>
+                                                 </div>
+
+                                            <span id="errormsg_emp_visa_expiry" style="display:none;" class="text-danger">Enter Visa Expiry</span>
+                                        </div>
+                                    </div>
+                                    <emp-field fld-label="" fld-type="hidden" ng-model="emp.id"></emp-field>
+                                    <emp-field fld-label="" fld-type="hidden" ng-model="emp.account_id"></emp-field>
+                                    <emp-field fld-label="" fld-type="hidden" ng-model="emp.update_by"></emp-field>
+                                    <emp-field fld-label="" fld-type="hidden" ng-model="emp.added_by"></emp-field>
+                                </div>
+                            </div>
+                        </div>
+                        </fieldset>
+                    </div>
+
+                </md-content>
+          </md-tab>
+
+          <md-tab label="work detail">
+              <md-content class="md-padding">
+                  <div id="tab2" class="tab-pane">
+                      <fieldset ng-disabled="formEnabled == 0">
+                      <div class="col-md-12 tabborder">
+                          <div class="row">
+                              <div class="col-md-6">
+
+
+
+
+                                  <div class="form-group row">
+                                      <label class="control-label col-sm-4" for="start_date">Start Date</label>
+                                      <div class="col-sm-8">
+                                          <div class="field-container" ng-class="formEnabled==1 && empform.start_date.$valid == false ? 'invalid' : ''">
+                                              <div class="field">
+                                                  <md-datepicker name="start_date" ng-model="empwork.start_date" md-current-view="year" md-placeholder="" md-hide-icons="all" md-is-open="empstdate.isOpen" ng-required="formEnabled == 1"></md-datepicker>
+                                              </div>
+                                              <div class="icon">
+                                                  <button ng-click="empstdate.isOpen = true">
+                                                      <span class="glyphicon glyphicon-calendar"></span>
+                                                  </button>
+                                              </div>
+                                          </div>
+                                          <span id="errormsg_emp_dob" style="display:none;" class="text-danger">Enter State Date</span>
+                                      </div>
+                                  </div>
+
+
+                                  <div class="form-group row">
+                                      <label class="control-label col-sm-4" for="end_date">End Date</label>
+                                      <div class="col-sm-8">
+                                          <div class="field-container">
+                                              <div class="field">
+                                                  <md-datepicker ng-model="empwor.end_date" md-current-view="year" md-placeholder="" md-hide-icons="all" md-is-open="empenddate.isOpen"></md-datepicker>
+                                              </div>
+                                              <div class="icon">
+                                                  <button ng-click="empenddate.isOpen = true">
+                                                      <span class="glyphicon glyphicon-calendar"></span>
+                                                  </button>
+                                              </div>
+                                          </div>
+                                          <span id="errormsg_emp_dob" style="display:none;" class="text-danger">Enter End Date</span>
+                                      </div>
+                                  </div>
+
+                                  <emp-field fld-label="Hourly Rate" ng-model="empwork.hourly_rate" ng-required="formEnabled == 1"></emp-field>
+                                  <emp-field fld-label="Weekly Rate" ng-model="empwork.weekly_rate" ng-required="formEnabled == 1"></emp-field>
+                                  <emp-field fld-label="Annual Rate" ng-model="empwork.annual_rate" ng-required="formEnabled == 1"></emp-field>
+                                  <emp-field fld-label="Bonus | Commission" ng-model="empwork.commission" ng-required="formEnabled == 1"></emp-field>
+                                  <emp-field fld-label="Weekly Hours" ng-model="empwork.hours_week" ng-required="formEnabled == 1"></emp-field>
+
+                              </div>
+                              <div class="col-md-6">
+                                  <div class="form-group row">
+                                      <label class="control-label col-sm-4" for="empw_position">Position</label>
+                                      <div class="col-sm-8">
+                                          <select class="form-control" ng-model="empwork.position" ng-required="formEnabled == 1">
+                                              <option value=""></option>
+                                              <option value="1"> A Position</option>
+                                              <option value="2"> B Position</option>
+                                              <option value="3"> C Position</option>
+                                         </select>
+                                          <span id="errormsg_empw_position" style="display:none;" class="text-danger">Select Position</span>
+                                      </div>
+                                  </div>
+                                  <div class="form-group row">
+                                      <label class="control-label col-sm-4" for="empw_level" ng-required="formEnabled == 1">Level</label>
+                                      <div class="col-sm-8">
+                                          <select class="form-control" ng-model="empwork.level">
+                                              <option value=""></option>
+    .                                          <option value="1"> A Level</option>
+                                              <option value="2"> B level</option>
+                                              <option value="3"> C Level</option>
+                                              <option value="4"> D level</option>
+                                          </select>
+                                          <span id="errormsg_empw_level" style="display:none;" class="text-danger">Select Level</span>
+                                      </div>
+                                  </div>
+                                  <div class="form-group row">
+                                      <label class="control-label col-sm-4" for="empw_department">Department</label>
+                                      <div class="col-sm-8">
+                                          <select class="form-control" ng-model="empwork.department" ng-required="formEnabled == 1">
+                                              <option value=""></option>
+                                              <option value="1"> A Department</option>
+                                              <option value="2"> B Department</option>
+                                              <option value="3"> C Department</option>
+                                              <option value="4"> D Department</option>
+                                          </select>
+                                          <span id="errormsg_empw_department" style="display:none;" class="text-danger">Select Department</span>
+                                      </div>
+                                  </div>
+                                  <div class="form-group row">
+                                      <label class="control-label col-sm-4" for="empw_state">State</label>
+                                      <div class="col-sm-8">
+                                          <select class="form-control" ng-model="empwork.workstate" ng-required="formEnabled == 1">
+                                              <option value="{{ws.id}}" ng-repeat="ws in stateList">{{ ws.display_text }}</option>
+                                         </select>
+                                          <span id="errormsg_empw_state" style="display:none;" class="text-danger">Select State</span>
+                                      </div>
+                                  </div>
+                                  <div class="form-group row">
+                                      <label class="control-label col-sm-4" for="empw_entitle">Entitle</label>
+                                      <div class="col-sm-8">
+                                          <select class="form-control" ng-model="empwork.entitle" ng-required="formEnabled == 1">
+                                              <option value=""></option>
+                                              <option value="1"> A Enitle</option>
+                                              <option value="2"> B Enitle</option>
+                                              <option value="3"> C Enitle</option>
+                                              <option value="4"> D Enitle</option>
+                                          </select>
+                                          <span id="errormsg_empw_entitle" style="display:none;" class="text-danger">Select Entitle</span>
+                                      </div>
+                                  </div>
+                                  <div class="form-group row">
+                                      <label class="control-label col-sm-4" for="empw_emp_type">Employee Type</label>
+                                      <div class="col-sm-8">
+                                          <select class="form-control" ng-model="emp.type" ng-required="formEnabled == 1">
+                                              <option value=""></option>
+                                              <option value="1"> A Type</option>
+                                              <option value="2"> B Type</option>
+                                          </select>
+                                          <span id="errormsg_empw_emp_type" style="display:none;" class="text-danger">Select Employee Type</span>
+                                      </div>
+                                  </div>
+                                  <div class="form-group row" disabled="">
+                                      <label class="control-label col-sm-4" for="empw_anual_leave_owing">Annual leave</label>
+                                      <div class="col-sm-8">
+                                          <input disabled="" type="text" class="form-control" ng-model="anual_leave_owing" placeholder="">
+                                          <span id="errormsg_empw_anual_leave_owing" style="display:none;" class="text-danger">Enter Annual leave</span>
+                                      </div>
+                                  </div>
+                                  <div class="form-group row" disabled="">
+                                      <label class="control-label col-sm-4" for="empw_personal_leave_owing">Personal leave</label>
+                                      <div class="col-sm-8">
+                                          <input disabled="" type="text" class="form-control" ng-model="personal_leave_owing" placeholder="">
+                                          <span id="errormsg_empw_personal_leave_owing" style="display:none;" class="text-danger">Enter Personal leave</span>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                  </fieldset>
+                  </div>
+
+              </md-content>
+          </md-tab>
+
+      </md-content>
+
+      <div class="buttons">
+          <button ng-click="saveEmployee()" value="Submit" class="btn btn-primary" ng-class="{'disabled': empform.$invalid }" ng-disabled="empform.$invalid || formEnabled == 0">Submit</button>
+          <button class="btn btn-info" ng-click="clearForm()" ng-disabled="formEnabled == 0">Clear</button>
+      </div>
+
+    <!-- --------------- END: Detail area ------------->
+    </form>
+
+</div>

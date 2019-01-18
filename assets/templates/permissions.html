@@ -1,0 +1,67 @@
+<ng-include src="'assets/templates/siteNavigation.html'"></ng-include>
+
+<style>
+    .permission-table .headerItem { font-weight: bold;}
+    .permission-table .subItem { padding-left: 30px;}
+</style>
+
+<div class="container permissions">
+
+    <div class="permission-selector">
+        <h3>Permissions</h3>
+        <md-input-container>
+          <label>Select Role</label>
+          <md-select ng-model="userrole" ng-change="updatePermissions()">
+            <md-option ng-value="0"><em>Please select..</em></md-option>
+            <md-option ng-repeat="role in roles" ng-value="role.id">
+              {{role.display_text}}
+            </md-option>
+          </md-select>
+        </md-input-container>
+
+    </div>
+
+    <table class="table table-bordered table-striped permission-table">
+        <thead>
+            <tr>
+                <th>Module</th>
+                <th>Read</th>
+                <th>Write</th>
+                <th>Delete</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="m in modules">
+                <td ng-class="{headerItem: m.sub == '0', subItem: m.sub == '1'}">{{ m.text }}</td>
+                <td><input type="checkbox" ng-model="permissions.read[m.id]" ng-true-value="1" ng-false-value="0" ng-disabled="userrole == 0 || !(perms.permissions.write == 1 || perms.permissions.delete == 1)" ng-checked="permissions.read[m.id] == 1"></td>
+                <td><input type="checkbox" ng-model="permissions.write[m.id]" ng-true-value="1" ng-false-value="0" ng-disabled="userrole == 0 || !(perms.permissions.write == 1 || perms.permissions.delete == 1)" ng-checked="permissions.write[m.id] == 1"></td>
+                <td><input type="checkbox" ng-model="permissions.delete[m.id]" ng-true-value="1" ng-false-value="0" ng-disabled="userrole == 0 || !(perms.permissions.write == 1 || perms.permissions.delete == 1)" ng-checked="permissions.delete[m.id] == 1"></td>
+            </tr>
+            
+
+            <tr>
+                <td colspan="4">
+                    <div class="userMessage">&nbsp;
+                        <div id="log_er_msg"></div>
+                        <div id="login_error" class="col-xs-12" ng-show="showMessage == 1">
+                            <div class="alert {{ success == 1 ? 'alert-success' : 'alert-danger'}} alert-dismissable">
+                                <i class="fa fa-ban"></i>
+                                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                                {{ userMessage }}
+                            </div>
+                        </div>
+                        <div class="clear"></div>
+                    </div>
+
+                    <div class="button-container">
+                        <button ng-click="savePermissions()" value="Save" class="btn btn-primary" ng-class="{'disabled': userrole == 0 || !(perms.permissions.write == 1 || perms.permissions.delete == 1)}" ng-disabled="userrole == 0">Save</button>
+                    </div>
+                </td>
+            </tr>
+
+
+        </tbody>
+    </table>
+
+
+</div>

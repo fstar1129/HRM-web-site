@@ -1,0 +1,140 @@
+<ng-include src="'assets/templates/siteNavigation.html'"></ng-include>
+
+<div class="container" id="users">
+    <h3>{{pageTitle}}</h3>
+
+    <button class="new-emp btn btn-primary" ng-click="newUser()">New User</button>
+    <div class="clear"></div>
+    <div class="grid user-grid" external-scopes="clickHandler" ui-grid="gridOptionsComplex" ui-grid-edit ui-grid-resize-columns
+        ui.grid.selection></div>
+    <form name="userform" ng-class="{'disabled': formEnabled == 0}">
+        <style>
+            md-tabs.md-default-theme md-ink-bar,
+            md-tabs md-ink-bar {
+                color: transparent;
+                background: none;
+            }
+        </style>
+
+
+        <!-- --------------- Detail area ------------->
+        <md-content>
+            <md-tabs md-dynamic-height md-border-bottom>
+                <md-tab label="user detail">
+                    <md-content class="md-padding">
+
+                        <div id="tab1" class="tab-pane fade in active">
+                            <fieldset ng-disabled="formEnabled == 0">
+                                <div class="col-md-12 tabborder">
+                                    <div class="row">
+                                        <div class="col-md-6">
+
+                                            <emp-field fld-label="First Name" ng-model="user.firstname" ng-required="formEnabled == 1"></emp-field>
+                                            <emp-field fld-label="Last Name" ng-model="user.lastname" ng-required="formEnabled == 1"></emp-field>
+                                            <emp-field fld-label="Username" ng-model="user.username" ng-required="formEnabled == 1"></emp-field>
+                                            <emp-field fld-label="Email" ng-model="user.email" ng-required="formEnabled == 1"></emp-field>
+                                            <emp-field fld-type="password" fld-label="Password" ng-model="user.password" ng-required="formEnabled == 1"></emp-field>
+
+                                            <div class="form-group row">
+                                                <label class="control-label col-sm-4" for="usertype_id">User role</label>
+                                                <div class="col-sm-8">
+                                                    <select ng-model="user.usertype_id" ng-required="formEnabled == 1">
+                                                        <option value="">Please select..</option>
+                                                        <option ng-repeat="u in userroles" ng-selected="user.usertype_id == u.id" value="{{u.id}}">{{u.display_text}}</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <input type="hidden" ng-model="user.id">
+                                            <input type="hidden" ng-model="user.account_id">
+                                            <input type="hidden" ng-model="user.added_by">
+                                            <input type="hidden" ng-model="user.update_by">
+
+                                            <div class="userMessage">&nbsp;
+                                                <div id="log_er_msg"></div>
+                                                <div id="login_error" class="col-xs-12" ng-show="showMessage == 1">
+                                                    <div class="alert {{ success == 1 ? 'alert-success' : 'alert-danger'}} alert-dismissable">
+                                                        <i class="fa fa-ban"></i>
+                                                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                                                        {{ userMessage }}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+
+                    </md-content>
+                </md-tab>
+
+        </md-content>
+
+        <div class="buttons">
+            <button ng-click="saveUser()" value="Save" class="btn btn-primary" ng-class="{'disabled': user_form.$invalid }" ng-disabled="user_form.$invalid">Submit</button>
+            <button class="btn btn-info" ng-click="clearForm()" ng-disabled="formEnabled == 0" style="margin-left: 5px;">Clear</button>
+        </div>
+
+        <!-- --------------- END: Detail area ------------->
+    </form>
+
+</div>
+
+
+
+<!--
+<ng-include src="'assets/templates/siteNavigation.html'"></ng-include>
+
+<span class="shadow-top"></span>
+<div class="login-form-wrapper">
+    <form class="form-horizontal" name="user_form">
+
+        <fieldset>
+            <div class="label">First name</div>
+            <input type="text" ng-model="user.firstname" class="" placeholder="First name"  ng-required="true" />
+        </fieldset>
+        <fieldset>
+            <div class="label">Last name</div>
+            <input type="text" ng-model="user.lastname" class="" placeholder="Last name"  ng-required="true" />
+        </fieldset>
+
+        <fieldset>
+            <div class="label">Username</div>
+            <input type="text" ng-model="user.username" class="" placeholder="Enter username"  ng-required="true" />
+        </fieldset>
+
+        <fieldset>
+            <div class="label">Email</div>
+            <input type="email" ng-model="user.email" class="" placeholder="Enter Email address"  ng-required="true" />
+        </fieldset>
+
+        <fieldset>
+            <div class="label">Password</div>
+            <input type="password" ng-model="user.password" class="" placeholder="Enter Password"  ng-required="true" />            
+        </fieldset>
+        <fieldset>
+            <div class="label">User role</div>
+            <select ng-model="user.usertype_id" ng-required="true">
+                <option value="">Please select..</option>
+                <option ng-repeat="u in userroles" ng-value="{{u.id}}">{{u.display_text}}</option>
+            </select>
+        </fieldset>
+
+        <div class="userMessage">&nbsp;
+            <div id="log_er_msg"></div>
+            <div id="login_error" class="col-xs-12" ng-show="showMessage == 1">
+                <div class="alert {{ success == 1 ? 'alert-success' : 'alert-danger'}} alert-dismissable">
+                    <i class="fa fa-ban"></i>
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                    {{ userMessage }}
+                </div>
+            </div>
+        </div>
+
+        <div class="buttons">
+            <button ng-click="saveUser()" value="Save" class="btn btn-primary" ng-class="{'disabled': user_form.$invalid }" ng-disabled="user_form.$invalid">Save</button>            
+        </div>
+    </form>
+</div>
+-->

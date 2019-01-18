@@ -1,0 +1,183 @@
+<ng-include src="'assets/templates/siteNavigation.html'"></ng-include>
+
+<style>
+    html body {
+        height: auto; !important;
+    }
+
+    .md-tab {
+        text-transform: capitalize;
+        font-weight: bold;
+    }
+    md-content {
+        overflow: hidden;
+    }
+    input {
+        max-width: 100%;
+        border: 0px solid;
+    }
+
+</style>
+<div class="container">
+    <div class="page-title-box">
+        <span class="page-title">{{pageTitle}}</span>
+    </div>
+    <form class="form-horizontal" id="user_form" name="user_form">
+        <div ng-cloak="" class="tabsdemoDynamicHeight">
+            <md-content class="md-padding">
+                <!-- First Name -->
+                <div class="form-group">
+                    <label class="control-label col-sm-3" for="firstname">First Name:</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" ng-model="user.firstname" name="firstname" id="firstname" required>
+                    </div>
+                </div>
+
+                <!-- Last Name -->
+                <div class="form-group">
+                    <label class="control-label col-sm-3" for="firstname">Last Name:</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" ng-model="user.lastname" name="lastname" id="lastname" required>
+                    </div>
+                </div>
+
+                <!-- Email -->
+                <div class="form-group">
+                    <label class="control-label col-sm-3" for="firstname">Email:</label>
+                    <div class="col-sm-9">
+                        <input type="email" class="form-control" ng-model="user.email" name="email" id="email" required>
+                    </div>
+                </div>
+
+                <!-- Username -->
+                <div class="form-group">
+                    <label class="control-label col-sm-3" for="firstname">Username:</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" ng-model="user.username" name="username" id="username" required>
+                    </div>
+                </div>
+
+                <!-- Password -->
+                <div class="form-group">
+                    <label class="control-label col-sm-3" for="firstname">Password:</label>
+                    <div class="col-sm-9">
+                        <input type="password" class="form-control" ng-model="user.password" name="password" id="password" required>
+                    </div>
+                </div>
+
+                <!-- Gender -->
+                <div class="form-group">
+                    <label class="control-label col-sm-3">Gender:</label>
+                    <div class="col-sm-9">
+                        <md-radio-group ng-model="user.gender">
+                            <md-radio-button value="M" class="md-primary" >Male</md-radio-button>
+                            <md-radio-button value="F">Female</md-radio-button>
+                        </md-radio-group>
+                    </div>
+                </div>
+
+                <!-- Contact Phone -->
+                <div class="form-group">
+                    <label class="control-label col-sm-3" for="firstname">Contact Phone:</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" ng-model="user.telephone" name="telephone" id="telephone" required>
+                    </div>
+                </div>
+
+                <!-- Postal Code -->
+                <div class="form-group">
+                    <label class="control-label col-sm-3" for="postcode">Postcode:</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" ng-model="user.postcode" name="postcode" id="postcode">
+                    </div>
+                </div>
+
+                <!-- Birthday -->
+                <div class="form-group">
+                    <label class="control-label col-sm-3" for="postcode">Birthday:</label>
+                    <div class="col-sm-9">
+                        <input type="date" class="form-control" ng-model="user.dob" name="dob" id="dob">
+                    </div>
+                </div>
+
+                <!-- Trading Name -->
+                <div class="form-group">
+                    <label class="control-label col-sm-3" for="tradingname">Trading Name:</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" ng-model="user.tradingname" name="tradingname" id="tradingname" required>
+                    </div>
+                </div>
+
+                <!-- Company Name -->
+                <div class="form-group">
+                    <label class="control-label col-sm-3" for="companyname">Company Name:</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" ng-model="user.companyname" name="companyname" id="companyname" required>
+                    </div>
+                </div>
+
+                <!-- ABN -->
+                <div class="form-group">
+                    <label class="control-label col-sm-3" for="companyname">ABN:</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" ng-model="user.abn" name="abn" id="abn" required>
+                    </div>
+                </div>
+
+                <!-- Business Address -->
+                <div class="form-group">
+                    <label class="control-label col-sm-3" for="address">Business Address:</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" ng-model="user.address" name="address" id="address" required>
+                    </div>
+                </div>
+
+                <!-- Suburb -->
+                <div class="form-group">
+                    <label class="control-label col-sm-3" for="suburb">Suburb:</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" ng-model="user.suburb" name="suburb" id="suburb" required>
+                    </div>
+                </div>
+
+                <!-- State -->
+                <div class="form-group">
+                    <label class="control-label col-sm-3">State:</label>
+                    <div class="col-sm-9">
+                        <select class="form-control" name="state" id="state"
+                                ng-options="option.value for option in stateList.availableOptions track by option.id"
+                                ng-model="stateList.selectedOption" required></select>
+                    </div>
+                </div>
+
+                <!-- Number of Employees -->
+                <div class="form-group">
+                    <label class="control-label col-sm-3">Number of Employees:</label>
+                    <div class="col-sm-9">
+                        <select class="form-control" ng-model="user.numEmployees" required>
+                            <option value="1-4">1 - 4</option>
+                            <option value="5-14">5 - 14</option>
+                            <option value="15-21">15 - 21</option>
+                            <option value="22+">22+</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- User Role -->
+                <div class="form-group">
+                    <label class="control-label col-sm-3">User Role:</label>
+                    <div class="col-sm-9">
+                        <select class="form-control" name="usertype_id" id="usertype_id"
+                                ng-options="option.value for option in roleList.availableOptions track by option.id"
+                                ng-model="roleList.selectedOption" required></select>
+                    </div>
+                </div>
+
+            </md-content>
+        </div>
+        <div class="form-group" style="float: right; padding: 20px;">
+            <button value="submit" class="btn btn-primary" ng-click="save()">Save</button>
+            <button class="btn btn-info" ng-click="cancel()">Cancel</button>
+        </div>
+    </form>
+</div>

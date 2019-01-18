@@ -1,0 +1,104 @@
+<ng-include src="'assets/templates/siteNavigation.html'"></ng-include>
+
+<style>
+    .search-field-wrapper { display: inline-block; width: 40%; }
+    .allocate-btn { float: right; display: inline-block; }
+    
+    @media only screen and (max-width: 600px) {
+        html body { padding: 0; }
+        .content { padding: 0 1rem; }
+        .container { padding: 0 !important; }
+        .search-field-wrapper { width: calc(100% - 125px); }
+        .allocate-btn { width: 120px; margin-bottom: 5px; }
+        
+        #course_table th:nth-child(3),
+        #course_table td:nth-child(3) { display: block;}
+        #course_table th:last-child,
+        #course_table td:last-child { text-align: center; width: 60px;}
+        #course_table button { width: 120px; padding: 5px 4px; min-width: unset; }
+        
+    }   
+
+
+</style>
+
+
+<div class="container">
+    <div class="page-title-box">
+        <span class="page-title">{{pageTitle}}</span>
+    </div>
+
+    <div class="row" style="padding-left: 15px; padding-right: 15px; margin-top: 10px;">
+        <div class="search-field-wrapper">
+            <div class="input-group">
+                <div class="input-group-addon"><i class="fa fa-search"></i></div>
+                <input type="text" class="form-control" placeholder="Search..." ng-model="search">
+            </div>
+        </div>
+        <button class="btn btn-primary allocate-btn" ng-click="allocCourse()">Allocate Course</button>
+    </div>
+
+    <div class="row" style="margin-left: 0px; margin-right: 0px;">
+        <table class="table table-striped" id="course_table">
+            <thead style="background-color: #0e90d2; color: white;">
+            <tr>
+                <th ng-click="sort('firstname')">Person Name
+                    <span class="fa sort-icon" ng-show="sortKey=='firstname'" ng-class="{'fa-caret-up':reverse,'fa-caret-down':!reverse}"></span>
+                </th>
+                <th ng-click="sort('course_name')">Course Name
+                    <span class="fa sort-icon" ng-show="sortKey=='course_name'" ng-class="{'fa-caret-up':reverse,'fa-caret-down':!reverse}"></span>
+                </th>
+                <th ng-click="sort('course_status')">Course Status
+                    <span class="fa sort-icon" ng-show="sortKey=='course_status'" ng-class="{'fa-caret-up':reverse,'fa-caret-down':!reverse}"></span>
+                </th>
+                <th ng-click="sort('days_remain')"  style="text-align: center;">Days Remaining
+                    <span class="fa sort-icon" ng-show="sortKey=='days_remain'" ng-class="{'fa-caret-up':reverse,'fa-caret-down':!reverse}"></span>
+                </th>
+                <th width="150px;">Action
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr dir-paginate="course in alloc_courses|orderBy:sortKey:reverse|filter:search|itemsPerPage:10">
+                <td>
+                    {{course.firstname}} {{course.lastname}}
+                </td>
+                <td>
+                    {{course.course_name}}
+                </td>
+                <td>
+                    <span ng-class="course.status_class">{{course.course_status}}</span>
+                </td>
+                <td style="text-align: center;">
+                    <span ng-class="course.status_class">{{course.days_remain}}</span>
+                </td>
+                <td>                                       
+                    <a class="action-button" ng-click="editAllocCourse(course)"  ><i class="fa fa-edit fa-2x" style="color: black;"></i></a>
+                    <a class="action-button" ng-click="removeAllocCourse(course)"  ><i class="fa fa-trash-o fa-2x text-danger"></i></a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div style="height: 100px; text-align: center;">
+            <dir-pagination-controls
+                    max-size="10"
+                    direction-links="true"
+                    boundary-links="true" >
+            </dir-pagination-controls>
+        </div>
+    </div>
+</div>
+
+<div modal="showModal" close="cancel()" style="background-color: white; width: 300px; height: 200px; margin: auto;">
+    <div class="modal-header">
+        <h4>Confirm</h4>
+    </div>
+    <div class="modal-body">
+        <p>Are you sure?</p>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-danger" ng-click="remove()">Remove</button>
+        <button class="btn" ng-click="cancel()">Cancel</button>
+    </div>
+</div>

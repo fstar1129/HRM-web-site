@@ -1,0 +1,189 @@
+<ng-include src="'assets/templates/siteNavigation.html'"></ng-include>
+
+<style>
+    .md-tabs.md-default-theme md-ink-bar, md-tabs md-ink-bar { background: none; }
+    fieldset { width: 100%; }
+    .md-padding { padding: 0; }
+    textarea { border: 1px solid #b6dde7;  width: 100%; height: 80px; border-radius: 4px; padding: 0 5px; }
+    .center { text-align: center;}
+    .autocomplete input { border: none; background-color: transparent; }
+    
+    input.md-datepicker-input {
+        display: block;
+        width: 100%;
+        height: 32px;
+        padding: 6px 12px;
+        font-size: 14px;
+        line-height: 1.42857143;
+        color: #555;
+        background-color: #fff;
+        background-image: none;
+        border: 0 solid #b3dce6;
+        border-radius: 4px;
+        -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+        box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+        -webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
+        -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+        transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s; 
+    }
+
+    .field-container { display: flex; flex-direction: row; border: 1px solid #b3dce6; height: 34px;  border-radius: 4px;    }    
+    .field-container .field { width: 100%; }
+    
+    .field-container .icon { padding: 6px 12px; font-size: 14px; font-weight: normal; line-height: 1; color: #555; text-align: center; background-color: #eee; border: 0px solid #ccc; border-left: 1px solid #b3dce6; border-radius: 0;  }    
+    .field-container .icon button { min-width: 20px; } 
+    
+    .md-datepicker-input-container { border-bottom: none; }
+    button.new-hs { float: right; margin-bottom: 5px; }
+    md-tab-item span { opacity: 0;}
+    .buttons { justify-content: center; }
+    
+     @media only screen and (max-width: 600px) {
+         .container { padding: 0 !important; }
+         
+     }
+</style>
+
+<div class="container" id="hazardoussubstance">
+    <h3>{{pageTitle}}</h3>
+
+    <button class="new-hs btn btn-primary" ng-click="newHS()">New</button> 
+    <div class="clear"></div>
+    <div class="grid hazardoussubstance-grid" external-scopes="clickHandler" ui-grid="gridOptionsComplex" ui-grid-edit ui-grid-resize-columns ui.grid.selection></div>
+
+    <form name="hazardoussubstanceform" ng-class="{'disabled': formEnabled == 0}">
+
+    <!-- --------------- Detail area ------------->
+    <md-content>
+        <md-tabs md-dynamic-height md-border-bottom>
+            <md-tab label=" Hazardous Substance Register">
+                <md-content class="md-padding">
+
+                    <div id="tab1" class="tab-pane fade in active">
+                        <fieldset ng-disabled="formEnabled == 0">
+                        <div class="col-md-12 tabborder">
+                            <div class="row">
+                                <div class="col-md-6">
+
+                                    <emp-field fld-label="Chemical Name" ng-model="hs.chemical_name" ng-required="formEnabled == 1"></emp-field>
+                                    <emp-field fld-label="Common Name" ng-model="hs.common_name" ng-required="formEnabled == 1"></emp-field>
+                                    <emp-field fld-label="Hazchem Number" ng-model="hs.hazchem_number" ng-required="formEnabled == 1"></emp-field>
+                                    <emp-field fld-label="Internal Stock Number" ng-model="hs.stock_number" ng-required="formEnabled == 1"></emp-field>
+                                    <emp-field fld-label="Storage Area" ng-model="hs.storage_area" ng-required="formEnabled == 1"></emp-field>
+                                    <emp-field fld-label="Quantity" ng-model="hs.quantity" ng-required="formEnabled == 1"></emp-field>
+                                    
+                                    <div class="form-group row">
+                                        <label class="control-label col-sm-4" for="state">Supplier</label>
+                                        <div class="col-sm-8">
+                                            <select class="form-control" ng-model="hs.supplier_id" ng-required="formEnabled == 1" ng-init="hs.supplier_id='0'">
+                                                <option value="0">Please select..</option>
+                                                <option value="{{s.id}}" ng-repeat="s in supplierList">{{ s.display_text }}</option>
+                                            </select>
+                                            <span id="errormsg_emp_state_id" style="display:none;" class="text-danger"></span>
+                                        </div>
+                                    </div>                                    
+                                    
+                                    
+                                    <div class="form-group row">
+                                        <label class="control-label col-sm-4" for="state">Measures to Controls Risk</label>
+                                        <div class="col-sm-8">
+                                            <textarea class='' ng-model='hs.measures_risk_control' ng-required="formEnabled == 1"></textarea>
+                                        </div>
+                                    </div>                                    
+                                    
+                                </div>
+                                <div class="col-md-6">
+                                    
+                                    
+                                    <emp-field fld-label="Safety Data Sheet Location" ng-model="hs.safety_sheet_location" ng-required="formEnabled == 1"></emp-field>
+                                    
+
+                                    <div class="form-group row">
+                                        <label class="control-label col-sm-4" for="state">Site Location</label>
+                                        <div class="col-sm-8">
+                                            <autocomplete class="form-control" id="site_location_id" name="site_location_id" ng-model="site_name" attr-placeholder="Please type site name..." click-activation="true" data="site_location_list" on-type="doChangeSiteLocation" on-select="doSelectedSiteLocation"></autocomplete>
+                                            
+                                            <span id="errormsg_emp_state_id" style="display:none;" class="text-danger">Select Location</span>
+                                        </div>
+                                    </div>                                    
+
+                                    
+                                    <div class="form-group row">
+                                        <label class="control-label col-sm-4" for="title">Manager in Charge</label>
+                                        <div class="col-sm-8">   
+                                            
+                                            <autocomplete class="form-control" id="manager_id" name="manager_id" ng-model="manager_name" attr-placeholder="Please type manager name..." click-activation="true" data="manager_list" on-type="doChangeManager" on-select="doSelectedManager"></autocomplete>
+
+                                            <span id="errormsg_emp_title" style="display:none;" class="text-danger">Select Title</span>
+                                        </div>
+                                    </div>
+                                    
+                                    
+                                    <div class="form-group row">
+                                        <label class="control-label col-sm-4" for="dob">Expiry Date</label>
+                                        <div class="col-sm-8">
+                                            <div class="field-container" ng-class="formEnabled==1 && hazardoussubstance.expiry_date.$valid == false ?'invalid' : ''">
+                                                <div class="field">
+                                                    <md-datepicker ng-model="hs.expiry_date" md-current-view="year" md-placeholder="" md-hide-icons="all" md-is-open="hazardoussubstance.isOpen" ng-required="formEnabled == 1"></md-datepicker>
+                                                </div>
+                                                <div class="icon">
+                                                    <button ng-click="hazardoussubstance.isOpen = true">
+                                                        <span class="glyphicon glyphicon-calendar"></span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <span id="errormsg_emp_dob" style="display:none;" class="text-danger">Enter Date of Birth</span>
+                                        </div>
+                                    </div>
+                                   
+                                    
+                                    
+                                    <div class="form-group row">
+                                        <label class="control-label col-sm-4" for="gender">Have Safety Data Sheet?</label>
+                                        <div class="col-sm-8">
+                                            <select class="form-control" ng-model="hs.has_sds" ng-required="formEnabled == 1">
+                                                <option value="">Please select..</option>
+                                                <option value="1">Yes</option>
+                                                <option value="0">No</option>
+                                            </select>
+                                            <span id="errormsg_emp_gender" style="display:none;" class="text-danger">Select Gender</span>
+                                        </div>
+                                    </div>
+
+                                    <emp-field fld-label="" fld-type="hidden" ng-model="hs.id"></emp-field>
+                                    <emp-field fld-label="" fld-type="hidden" ng-model="hs.account_id"></emp-field>
+                                    <emp-field fld-label="" fld-type="hidden" ng-model="hs.updated_by"></emp-field>
+                                    <emp-field fld-label="" fld-type="hidden" ng-model="hs.created_by"></emp-field>
+                                    <emp-field fld-type="hidden" fld-label="" ng-model="hs.manager_id"></emp-field> 
+                                    <emp-field fld-type="hidden" fld-label="" ng-model="hs.site_location_id"></emp-field>
+                                </div>
+                            </div>
+                        </div>
+                        </fieldset>
+                    </div>
+
+                </md-content>
+          </md-tab>
+
+      </md-content>
+    
+        <div class="userMessage">&nbsp;
+            <div id="log_er_msg"></div>
+            <div id="login_error" class="col-xs-12" ng-show="showMessage == 1" style="float: none;">
+                <div class="alert {{ success == 1 ? 'alert-success' : 'alert-danger'}} alert-dismissable" style="padding-right: 45px;">
+                    <i class="fa fa-ban"></i>
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true" ng-click="showMessage = 0;">&times;</button>  
+                    {{ userMessage }}
+                </div>
+            </div>
+        </div>    
+
+        <div class="buttons">
+            <button ng-click="saveHS()" value="Submit" class="btn btn-primary" ng-class="{'disabled': hazardoussubstanceform.$invalid }" ng-disabled="hazardoussubstanceform.$invalid || formEnabled == 0">Submit</button>
+            <button class="btn btn-info" ng-click="clearForm()" ng-disabled="formEnabled == 0" style="margin-left: 5px;">Clear</button>
+        </div>
+
+    <!-- --------------- END: Detail area ------------->
+    </form>
+
+</div>

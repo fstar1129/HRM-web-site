@@ -1,0 +1,17 @@
+<h1 style='text-align: center'><a id='top'></a>{{ pageContent.detail.title}}</h1>
+
+<div ng-repeat="model in pageContent.detail.sections">
+    <div class="sub-header">
+        <h2 class="float-left"><a id="{{ model.id }}"></a> {{model.label}}</h2>
+        <div class="add-favorite" ng-click="AddFavourite(model)">Add favourite</div>
+    </div>
+    <div class="clear"></div>
+
+    <div class="content" ng-bind-html="model.content"></div>
+
+    <div class="backtotop">
+        <a href="#top">Back to top</a>
+    </div>
+    <hr class="section-break">
+
+</div>

@@ -1,0 +1,30 @@
+<ng-include src="'assets/templates/siteNavigation.html'"></ng-include>
+
+<span class="shadow-top"></span>
+<div class="login-form-wrapper">
+    <form class="form-horizontal" name="employer_login_form">
+        <fieldset>
+            <div class="label">Username</div>
+            <input type="text" ng-model="login.email" class="" placeholder="Enter username"  value="" />
+        </fieldset>
+        <fieldset>
+            <div class="label">Password</div>
+            <input  type="password" ng-model="login.password" class="" placeholder="Enter Password"  value="" />
+        </fieldset>
+
+        <div class="userMessage">&nbsp;
+            <div id="log_er_msg"></div>
+            <div id="login_error" class="col-xs-12" ng-show="showMessage == 1">
+                <div class="alert {{ success == 1 ? 'alert-success' : 'alert-danger'}} alert-dismissable">
+                    {{ login.userMessage}}
+                </div>
+            </div>
+        </div>
+
+        <div class="buttons">
+            <button type="button" ng-click="doLogin()" value="Login" class="btn btn-primary float-left">Login</button>
+            <a href="#forgotpassword" class="btn btn-info float-left">Forgot Password</a>
+            <div class="clear"></div>
+        </div>
+    </form>
+</div>

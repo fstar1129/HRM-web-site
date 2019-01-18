@@ -1,0 +1,193 @@
+<ng-include src="'assets/templates/siteNavigation.html'"></ng-include>
+<div class="container" id="employees">
+    <h3>{{pageTitle}}</h3>
+    <p>{{course_id}}</p>
+    <h4 class="questionnairef">Step 2: How many questions do you want in your questionnaire?</h4>
+    <select class="questionnairef" ng-model = 'selected_num' ng-click = 'select_q()' >
+        <option value = '' >Please Select</option>
+        <option ng-repeat = 'q in course_num' value = '{{q.value}}' > {{q.disp_txt}} </option>
+        
+    </select>
+    
+    <!-- button class="new-emp btn btn-primary" ng-click="newCourse()"> Add New </button>
+    <div class="clear"></div>
+    <div class="grid employee-grid" external-scopes="clickHandler" ui-grid="gridOptionsComplex" ui-grid-edit ui-grid-resize-columns ui.grid.selection></div -->
+
+    <form name="selectform" ng-class="{'disabled': formEnabled == 0}">
+    
+
+    <!-- --------------- Detail area ------------->
+    <!-- md-content>
+        <md-tabs md-dynamic-height md-border-bottom>
+            <md-tab label="create a course">
+                <md-content class="md-padding">
+
+                    <div id="tab1" class="tab-pane fade in active">
+                        <fieldset ng-disabled="formEnabled == 0">
+                        <div class="col-md-12 tabborder">
+                            <div class="row">
+                                
+                                <div class="col-md-8">
+                                    
+                                    <div class="form-group row">
+                                        <label class="control-label col-sm-3" for="course_category">Course Category</label>
+                                        <div class="col-sm-4">
+                                            <select class="form-control" ng-model="course.category" ng-required="formEnabled == 1">
+                                                <option value="{{s.id}}" ng-repeat="s in course_category">{{ s.label }}</option>
+                                            </select>
+                                            
+                                        </div>
+                                        <div class = 'col-sm-4' >
+                                            Create and manage categories
+                                        </div>
+                                        
+                                    </div>
+
+                                    <div class="form-group row">
+                                        <div class = 'col-sm-3' >
+                                            Select course type
+                                        </div>
+                                        
+                                        <div class="col-sm-4">
+                                           <md-radio-group ng-model="course_type.type_1">
+
+                                              <md-radio-button value="Multiple Choice" class="md-primary" >Multiple Choice</md-radio-button>
+                                              <md-radio-button value="Questions And Answers"> Questions and Answers </md-radio-button>
+                                            
+                                        
+                                            </md-radio-group>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row">
+                                        <label class="control-label col-sm-3" for="state">Enter Course Name</label>
+                                        <div class="col-sm-8">
+                                            <input class = '' ng-model = 'course.course_name' ng-required="formEnabled == 1" style = 'width: 100%;' />
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="control-label col-sm-3" for="state">Enter Course Description</label>
+                                        <div class="col-sm-8">
+                                            <textarea class = '' ng-model = 'course.course_desc' ng-required="formEnabled == 1" style = 'width: 100%;' ></textarea>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group row">
+                                        <div class = 'col-sm-3' >
+                                            Active Course
+                                        </div>
+                                        
+                                        <div class="col-sm-4">
+                                           <md-radio-group ng-model="active_course.active">
+
+                                              <md-radio-button value="active" class="md-primary" >Active</md-radio-button>
+                                              <md-radio-button value="inactive"> Inactive </md-radio-button>
+                                            
+                                        
+                                            </md-radio-group>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="col-md-4">
+                                </div>
+ 
+                                
+                            </div>
+                        </div>
+                        </fieldset>
+                    </div>
+                </md-content>
+            </md-tab>
+        </md-tab>
+
+      </md-content -->
+      
+     <div class="form-group" style="display:none;" id="questionnaireDiv">
+      <label for="pwd">insert name of questionnaire:</label>
+      <input type="text" class="form-control" id="questionnaire_name">
+    </div>
+    
+   
+      
+      <div class="buttons questionnairef">
+          <button ng-click="goto_step3()" value="Submit" class="btn btn-primary" ng-class="{'disabled': selectform.$invalid }" ng-disabled="selectform.$invalid || formEnabled ==0">Next</button>
+          
+          <button ng-click="del_course()" class="btn btn-info"  ng-class="{'disabled': selectform.$invalid }" ng-disabled="selectform.$invalid || formEnabled ==0">Cancel</button>
+      </div>
+
+
+<div class="buttons questionnaireS" style="display:none;">
+          <button ng-click="showquestionlist()" value="Submit" class="btn btn-primary" ng-class="{'disabled': selectform.$invalid }" ng-disabled="selectform.$invalid || formEnabled ==0">Next</button>
+          
+          <button ng-click="del_course()" class="btn btn-info"  ng-class="{'disabled': selectform.$invalid }" ng-disabled="selectform.$invalid || formEnabled ==0">Cancel</button>
+      </div>
+      
+       <div class="create_question_div" style="display:none;";>
+        
+         <p>Step 3:  Please select your question methodology</p>
+          <div>
+              <ul class="rig">
+              
+          </div>
+    
+     <div class="buttons">
+          <button ng-click="goto_step8()" value="Submit" class="btn btn-primary" ng-class="{'disabled': selectform.$invalid }" ng-disabled="selectform.$invalid || formEnabled ==0">Next</button>
+          
+          <button ng-click="del_course()" class="btn btn-info"  ng-class="{'disabled': selectform.$invalid }" ng-disabled="selectform.$invalid || formEnabled ==0">Cancel</button>
+      </div>
+        
+    </div>
+      
+      
+      
+      <div class="questionnaireP" style="display:none;">
+          
+          <div class="form-group">
+      <label for="pwd">Please Enter your question and answers:</label>
+      
+    </div>
+    <div class="form-group">
+      <label for="pwd"><b></b>I want question 1 to have the following drop down answer options</b></label>
+      
+    </div>
+    
+        <img src="http://hrmaster.com.au/assets/templates/striars.png">
+        
+    <div class="form-group">
+      <label for="pwd">Q</label>
+      <input type="text" class="form-control" id="questionnaire_name" value="What do you this the wrong in the image above?">
+    </div>
+    
+    <div class="form-group">
+      <label for="pwd">A1</label>
+      <input type="text" class="form-control" id="questionnaire_name" value="The stiars are wet">
+    </div>
+    
+    <div class="form-group">
+      <label for="pwd">A2</label>
+      <input type="text" class="form-control" id="questionnaire_name" value="The stiars have no lighing">
+    </div>
+    
+     <div class="form-group">
+      <label for="pwd">Please select correct options</label>
+    </div>
+    <div class="radio">
+  <label><input type="radio" name="optradio" checked>Option 1</label>
+</div>
+<div class="radio">
+  <label><input type="radio" name="optradio">Option 2</label>
+</div>
+          
+          
+      </div>
+      <br>
+      <div class="buttons questionnaireP" style="display:none;">
+          <button ng-click="showquestio()" value="Submit" class="btn btn-primary" ng-class="{'disabled': selectform.$invalid }" ng-disabled="selectform.$invalid || formEnabled ==0">Next</button>
+          
+          <button ng-click="del_course()" class="btn btn-info"  ng-class="{'disabled': selectform.$invalid }" ng-disabled="selectform.$invalid || formEnabled ==0">Cancel</button>
+      </div>
+    <!-- --------------- END: Detail area ------------->
+    </form>
+
+</div>

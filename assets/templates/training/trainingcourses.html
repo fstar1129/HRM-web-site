@@ -1,0 +1,115 @@
+<ng-include src="'assets/templates/siteNavigation.html'"></ng-include>
+
+<style>
+    .search-field-wrapper { display: inline-block; width: 40%; }
+    .add-new-btn { float: right; display: inline-block; }
+    
+    @media only screen and (max-width: 600px) {
+        html body { padding: 0; }
+        .content { padding: 0 10px; }
+        .container { padding: 0 !important; }
+        .search-field-wrapper { width: calc(100% - 90px); }
+        .add-new-btn { width: 80px; margin-bottom: 5px; }
+        
+        #course_table th:nth-child(3),
+        #course_table td:nth-child(3) { display: none;}
+        #course_table td:last-child { text-align: center;}
+        #course_table button { width: 49px; padding: 5px 4px; min-width: unset; }
+        
+    }   
+
+
+</style>
+
+<div class="container">
+    <div class="page-title-box">
+        <span class="page-title">{{pageTitle}}</span>
+    </div>
+
+    <div class="row" style="padding-left: 15px; padding-right: 15px; margin-top: 10px;">
+        <div class="search-field-wrapper">
+            <div class="input-group">
+                <div class="input-group-addon"><i class="fa fa-search"></i></div>
+                <input type="text" class="form-control" placeholder="Search..." ng-model="search">
+            </div>
+        </div>
+        <button class="btn btn-primary add-new-btn" ng-click="newCourse()">Add New</button>
+    </div>
+    <div class="row" style="margin-left: 0px; margin-right: 0px;">
+        <table class="table table-striped" id="course_table">
+            <thead style="background-color: #0e90d2; color: white;">
+                <tr>
+                    <th ng-click="sort('course_name')">Name
+                        <span class="fa sort-icon" ng-show="sortKey=='course_name'" ng-class="{'fa-caret-up':reverse,'fa-caret-down':!reverse}"></span>
+                    </th>
+                    <th ng-click="sort('course_description')">Description
+                        <span class="fa sort-icon" ng-show="sortKey=='course_description'" ng-class="{'fa-caret-up':reverse,'fa-caret-down':!reverse}"></span>
+                    </th>
+                    <th ng-click="sort('course_type')">Type
+                        <span class="fa sort-icon" ng-show="sortKey=='course_type'" ng-class="{'fa-caret-up':reverse,'fa-caret-down':!reverse}"></span>
+                    </th>
+                    <th ng-click="sort('course_category_name')">Category
+                        <span class="fa sort-icon" ng-show="sortKey=='course_category_name'" ng-class="{'fa-caret-up':reverse,'fa-caret-down':!reverse}"></span>
+                    </th>
+                    <th ng-click="sort('status')" width="150px;">Status
+                        <span class="fa sort-icon" ng-show="sortKey=='status'" ng-class="{'fa-caret-up':reverse,'fa-caret-down':!reverse}"></span>
+                    </th>
+                    <th width="70px;">
+                        Action
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr dir-paginate="course in courses|orderBy:sortKey:reverse|filter:search|itemsPerPage:10">
+                    <td>
+                        {{course.course_name}}
+                    </td>
+                    <td>
+                        {{course.course_description}}
+                    </td>
+                    <td>
+                        {{course.course_type}}
+                    </td>
+                    <td>
+                        {{course.course_category_name}}
+                    </td>
+                    <td>
+                        <div ng-if="course.status == 0" class="btn-group" ng-show="course.can_edit">
+                            <button type="button" class="btn btn-sm btn-default btn-group-child" ng-click="activateCourse(course, 1)">Active</button>
+                            <button type="button" class="btn btn-sm btn-success btn-group-child" ng-click="activateCourse(course, 0)">Inactive</button>
+                        </div>
+                        <div ng-if="course.status == 1" class="btn-group" ng-show="course.can_edit">
+                            <button type="button" class="btn btn-sm btn-success btn-group-child" ng-click="activateCourse(course, 1)">Active</button>
+                            <button type="button" class="btn btn-sm btn-default btn-group-child" ng-click="activateCourse(course, 0)">Inactive</button>
+                        </div>
+                    </td>
+                    <td>
+                        <a class="action-button" ng-click="editCourse(course)" ng-show="course.can_edit"><i class="fa fa-edit fa-2x" style="color: black;"></i></a>
+                        <a class="action-button" ng-click="removeCourse(course)" ng-show="course.can_edit"><i class="fa fa-trash-o fa-2x text-danger"></i></a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div style="height: 100px; text-align: center;">
+            <dir-pagination-controls
+                    max-size="10"
+                    direction-links="true"
+                    boundary-links="true" >
+            </dir-pagination-controls>
+        </div>
+    </div>
+</div>
+
+<div modal="showModal" close="cancel()" style="background-color: white; width: 300px; height: 200px; margin: auto;">
+    <div class="modal-header">
+        <h4>Confirm</h4>
+    </div>
+    <div class="modal-body">
+        <p>Are you sure?</p>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-danger" ng-click="remove()">Remove</button>
+        <button class="btn" ng-click="cancel()">Cancel</button>
+    </div>
+</div>

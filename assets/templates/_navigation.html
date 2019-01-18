@@ -1,0 +1,25 @@
+<menu class="top-nav" ng-show="!isLoggedin">
+    <div class="shell">
+        <a href="javascript:void(0);" class="nav-btn">
+            MENU
+            <span ng-init="showMenu = false;" ng-click="showMenu = !showMenu;"></span>
+        </a>
+        <span class="top-nav-shadow"></span>
+        <ul class="menu-items non-mobile">
+            <li><a href="#/">home</a></li>
+            <li><a href="#aboutus">About Us</a></li>
+            <li><a href="#solution">solutions</a></li>
+            <li><a href="#contactus">contacts</a></li>
+            <li><a href="#login">login now</a></li>
+        </ul>
+
+        <ul ng-hide="showMenu == false"  class="menu-items mobile">
+            <li><a href="#/">home</a></li>
+            <li><a href="#aboutus">About Us</a></li>
+            <li><a href="#solution">solutions</a></li>
+            <li><a href="#contactus">contacts</a></li>
+            <li><a href="#login">login now</a></li>
+        </ul>
+
+    </div>
+</menu>

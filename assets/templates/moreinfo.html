@@ -1,0 +1,29 @@
+<div id="moreinfo" ng-controller="moreinfoController">
+    <div class="container">
+
+        <ng-include src="'assets/templates/_header.html'" ></ng-include>
+
+        <div class="info-container">
+            <div class="full-width">
+                hrblackbook is an invite only HR program designed by Australian Employment Lawyers and HR Professionals for HR Professionals. We are currently not taking on new members and we thank you for your interest. If you have any further enquiries, please speak to your referral and/or send us your email address. A representative will email you back in the near future. Please note your email address will not be used for any other purpose.
+            </div>
+
+                <div class="form-fields">
+                    <div class="fieldset moreinfo-fields">
+                        <label>Enter Email</label>
+                        <input type="text" ng-model="email" ng-required="true">
+                    </div>
+                </div>
+                <div class='user-message' ng-class="{'success' : success == 1, 'error' : success == 0}">{{ userMessage }}&nbsp;</div>
+
+                <div class="buttons">
+                    <button ng-click="submitEmail()" class="main">Submit</button>
+                    <button ng-click="GoBack()" class="second">Go Back</button>
+                </div>
+
+        </div>
+
+
+
+    </div>
+</div>

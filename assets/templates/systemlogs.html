@@ -1,0 +1,96 @@
+<ng-include src="'assets/templates/siteNavigation.html'"></ng-include>
+
+<style>
+    .search-field-wrapper { display: inline-block; width: 40%; }
+    .add-new-btn { float: right; display: inline-block; }
+    
+    @media only screen and (max-width: 600px) {
+        html body { padding: 0; }
+        .content { padding: 0 10px; }
+        .container { padding: 0 !important; }
+        .search-field-wrapper { width: calc(100% - 90px); }
+        .add-new-btn { width: 80px; margin-bottom: 5px; }
+        
+        #course_table th:nth-child(3),
+        #course_table td:nth-child(3) { display: none;}
+        #course_table td:last-child { text-align: center;}
+        #course_table button { width: 49px; padding: 5px 4px; min-width: unset; }
+        
+    }   
+
+
+</style>
+
+<div class="container" id="employees">
+    <h3>{{pageTitle}}</h3>
+
+    <!-- <div class="row" style="padding-left: 15px; padding-right: 15px; margin-top: 10px;">
+        <div class="search-field-wrapper">
+            <div class="input-group">
+                <div class="input-group-addon"><i class="fa fa-search"></i></div>
+                <input type="text" class="form-control" placeholder="Search..." ng-model="search">
+            </div>
+        </div>
+        
+    </div>
+    <div class="row" style="margin-left: 0px; margin-right: 0px;">
+        <table class="table table-striped" id="course_table">
+            <thead style="background-color: rgb(46, 162, 202); color: white;">
+                <tr>
+                    <th ng-click="sort('id')" style = "width:10%;text-align: center">ID
+                        <span class="fa sort-icon" ng-show="sortKey=='id'" ng-class="{'fa-caret-up':reverse,'fa-caret-down':!reverse}"></span>
+                    </th>
+                    <th ng-click="sort('who')"  style = "width:20%;text-align: center">Who
+                        <span class="fa sort-icon" ng-show="sortKey=='who'" ng-class="{'fa-caret-up':reverse,'fa-caret-down':!reverse}"></span>
+                    </th>
+                    <th ng-click="sort('what')"  style = "width:50%;text-align: center">What
+                        <span class="fa sort-icon" ng-show="sortKey=='what'" ng-class="{'fa-caret-up':reverse,'fa-caret-down':!reverse}"></span>
+                    </th>
+                    <th ng-click="sort('time')" style = "width:20%;text-align: center">Time Added
+                        <span class="fa sort-icon" ng-show="sortKey=='time'" ng-class="{'fa-caret-up':reverse,'fa-caret-down':!reverse}"></span>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr dir-paginate="log in logs|orderBy:sortKey:reverse|filter:search|itemsPerPage:10">
+                    <td style="text-align: center">
+                        {{$index + 1}}
+                    </td>
+                    <td style="text-align: center">
+                        {{log.who}}
+                    </td>
+                    <td style="text-align: center">
+                        {{log.what}}
+                    </td>
+                    <td style="text-align: center">
+                        {{formatDate(log.time)}}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div style="height: 100px; text-align: center;">
+            <dir-pagination-controls
+                    max-size="10"
+                    direction-links="true"
+                    boundary-links="true" >
+            </dir-pagination-controls>
+        </div>
+    </div> -->
+    <div class="clear"></div>
+    <div class="grid employee-grid" external-scopes="clickHandler" ui-grid="gridOptionsComplex" ui-grid-edit
+        ui-grid-resize-columns ui.grid.selection style="height: 480px;"></div>
+</div>
+
+<div modal="showModal" close="cancel()" style="background-color: white; width: 300px; height: 200px; margin: auto;">
+    <div class="modal-header">
+        <h4>Confirm</h4>
+    </div>
+    <div class="modal-body">
+        <p>Are you sure?</p>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-danger" ng-click="remove()">Remove</button>
+        <button class="btn" ng-click="cancel()">Cancel</button>
+    </div>
+</div>

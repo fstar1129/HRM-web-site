@@ -1,0 +1,53 @@
+<ng-include src="'assets/templates/siteNavigation.html'"></ng-include>
+
+<style>
+    .sitedata-container { margin-top: 20px; width: 350px; }
+    .sitedata-container label { padding-top: 6px; text-align: right; }
+    .buttons { justify-content: center; }
+    
+    .new-data { float: right; margin-bottom: 5px;}
+    
+    @media only screen and (max-width: 600px) {
+        html body { padding: 0; }
+        input[type="radio"] { width: 32px; margin-bottom: 5px; }  
+        .answer-wrapper { display: flex; align-items: center; margin-bottom: 5px;}
+       
+    }   
+
+
+</style>
+
+
+
+<div class="container" id="sitedata">
+    <h3>{{pageTitle}}</h3>
+
+    <button class="new-data btn btn-primary" ng-click="newData()">New</button> 
+    <div class="clear"></div>
+    <div class="grid sitedata-grid" external-scopes="clickHandler" ui-grid="gridOptionsComplex" ui-grid-edit ui-grid-resize-columns ui.grid.selection></div>    
+    
+    <form name="sdform" ng-class="{'disabled': formEnabled == 0}">
+        <fieldset ng-disabled="formEnabled == 0">
+            <div class="sitedata-container">
+                <div class="form-group row">
+                    <label class="control-label col-sm-4" for="state">Data Type</label>
+                    <div class="col-sm-8">
+                        <select class="form-control" ng-model="sd.type" ng-required="formEnabled == 1" ng-init="sd.type=''">
+                            <option value="">Please select..</option>
+                            <option value="{{s}}" ng-repeat="s in typeList">{{ s }}</option>
+                        </select>
+                        <span id="errormsg_emp_state_id" style="display:none;" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <emp-field fld-label="Data Value" ng-model="sd.display_text" ng-required="formEnabled == 1"></emp-field>
+                <emp-field fld-label="" fld-type="hidden" ng-model="sd.id"></emp-field>
+            </div>
+    
+            <div class="buttons">
+                <button ng-click="saveData()" value="Submit" class="btn btn-primary" ng-disabled="sdform.$invalid || formEnabled == 0">Submit</button>
+                <button class="btn btn-info" ng-click="clearForm()" ng-disabled="formEnabled == 0" style="margin-left: 5px;">Clear</button>
+            </div>    
+        </fieldset>
+    </form>
+</div>

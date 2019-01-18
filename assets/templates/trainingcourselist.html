@@ -1,0 +1,29 @@
+<ng-include src="'assets/templates/siteNavigation.html'"></ng-include>
+
+<style>
+    .completed { text-decoration: none; }
+    .completed a { color: #828282;  }
+    .completed a:hover { text-decoration: none; cursor: default; }
+</style>
+
+<style>
+    /*.search-field-wrapper { display: inline-block; width: 40%; }
+    .allocate-btn { float: right; display: inline-block; }*/
+    
+    @media only screen and (max-width: 600px) {
+        html body { padding: 0; }
+        .content { padding: 0 10px; }
+        .container { padding: 0 !important; }
+        .allocate-btn { width: 120px; margin-bottom: 5px; }       
+    }   
+
+
+</style>
+
+<div class="container" id="employeecourses">
+    <h3>{{pageTitle}}</h3>
+
+    <div class="clear"></div>
+    <div class="grid trainingcourses-grid" external-scopes="clickHandler" ui-grid="gridOptionsComplex" ui-grid-edit ui-grid-resize-columns ui.grid.selection></div>
+ 
+</div>

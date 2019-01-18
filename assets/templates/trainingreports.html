@@ -1,0 +1,194 @@
+<ng-include src="'assets/templates/siteNavigation.html'"></ng-include>
+<link rel="stylesheet" href="assets/css/dashboard.css" type="text/css" media="all">
+<style>
+    .md-tabs.md-default-theme md-ink-bar, md-tabs md-ink-bar { background: none; }
+    fieldset { width: 99%; }
+    .md-padding { padding: 0; }
+    textarea { border: 1px solid #b6dde7;  width: 100%; height: 92px; border-radius: 4px; padding: 0 5px; }
+    .center { text-align: center;}
+    .autocomplete input { border: none; background-color: transparent; }
+    
+    small { font-size: 75%; font-weight: 400; opacity: .7; }
+    input, select { width: 100%; }
+    .time-group { display: flex; flex-direction: row; }
+    .time-group select { flex: 1; }
+    .time-group select:first-child { margin-right: 5px; }
+    input, select, textarea { border: 1px solid #b6dde7; }
+    md-tab-item span { opacity: 0;}
+    .text-edit { font-size: 18px; color: #000; }
+    .text-edit:hover { cursor: pointer; opacity: .7; }
+    .text-danger { font-size: 18px; }
+    .text-danger { cursor: pointer; opacity: .7; }    
+    
+    input.md-datepicker-input {
+        display: block;
+        width: 100%;
+        height: 32px;
+        padding: 6px 12px;
+        font-size: 14px;
+        line-height: 1.42857143;
+        color: #555;
+        background-color: #fff;
+        background-image: none;
+        border: 0 solid #b3dce6;
+        border-radius: 4px;
+
+        -webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
+        -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+        transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+    }
+
+    .field-container { display: flex; flex-direction: row; border: 1px solid #b3dce6; height: 34px;  border-radius: 4px;    }    
+    .field-container .field { width: 100%; }
+    
+    .field-container .icon { padding: 6px 12px; font-size: 14px; font-weight: normal; line-height: 1; color: #555; text-align: center; background-color: #eee; border: 0px solid #ccc; border-left: 1px solid #b3dce6; border-radius: 0;  }    
+    .field-container .icon button { min-width: 20px; }
+    
+    .radioset-wrapper { display: flex; flex-direction: row; }
+    .radioset { display: flex; flex-direction: row; align-items: center; margin: 0 6px 0;}
+    .radioset input[type="radio"] { margin: 0 5px 0 0; height: 16px; width: 16px; }
+    
+    .md-datepicker-input-container { border-bottom: none; }
+    button.new-ir { float: right;  }
+
+    .buttons { justify-content: center; }
+    
+    fieldset[disabled="disabled"] textarea,
+    fieldset[disabled="disabled"] select,
+    fieldset[disabled="disabled"] .field,
+    fieldset[disabled="disabled"] input { background-color: #EEE;}
+    
+    .form-group { display: flex; align-items: center;}
+    
+     @media only screen and (max-width: 600px) {
+         .container { padding: 0 !important; }
+     }
+     
+    .md-whiteframe-1dp, .md-whiteframe-z1 {
+        box-shadow: none;
+        border: 1px solid #b6dde7;
+        border-radius: 6px;
+        height: 36px;
+    }
+    md-autocomplete input:not(.md-input) {
+        height: 34px;
+    }
+    md-autocomplete button {
+        margin-right: -20px;
+    }
+    
+    md-virtual-repeat-container:first-child {
+        background-color: red !important;
+    }
+    
+    /*.course-supervisor md-virtual-repeat-container.md-autocomplete-suggestions-container {*/
+    .md-virtual-repeat-container.md-autocomplete-suggestions-container {
+        border-top: none;
+        border-radius: 0;
+        box-shadow: 0px 7px 14px rgba(0,0,0,.25) !important;
+    }
+    
+    .icon button { background-color: transparent; border: none; }
+    
+    .injuryregister-grid {
+        height: 250px;
+        margin-top: 5px;
+    }
+    
+     
+</style>
+<div class="container" ng-init="init()">
+    <div ng-show="!isAllowed">
+        <h1></h1>
+    </div>
+    <div class="container" id="injuryregister" ng-show="isAllowed">
+        <h3>{{pageTitle}}</h3>
+        
+        <div class="clear"></div>
+        <div class="grid injuryregister-grid" external-scopes="clickHandler" ui-grid="gridOptionsComplex" ui-grid-edit ui-grid-resize-columns ui.grid.selection></div>
+        <div class="row">
+            <div class="col-lg-3">
+                <div ng-show="isEmployeeListExist">
+                    <div external-scopes="clickHandler" ui-grid="gridOptionsComplexEply" ng-style="{height: employees_length+'px'}"></div> 
+                </div>
+                <div ng-hide="!isYearListExist" style="border:1px solid lightgray;padding:5px;">
+                    <div class="row">
+                        <div class="col-sm-3">
+                                <label for="option" style="margin-left: 18px;margin-top:5px;">Years</label>
+                        </div>
+                        <div class="col-sm-9">
+                                <select class="form-control" id="option" ng-model="Option" ng-options="x for x in years" ng-click="sendYrReq(Option)" style="width:100%;">
+                                </select>
+                        </div>
+                    </div>  
+                </div>
+            </div>
+
+            <!-- <div class="col-sm-9 chart-container"> -->
+
+            <div class="col-lg-9 chart-left">
+
+                <div class="row">
+                    
+                    <div  class="col-sm-6">
+                            <div style = "padding:10px 0;">
+                                <div class="char-title"> 
+                                    Employee scores in {{employee_location}}
+                                </div>
+                            </div>
+                            <div class="charts">
+                                    <canvas id="allscoresBar" class="chart chart-bar" height="150px"
+                                    chart-data="allscoresBarData" chart-labels="allscoresBarLabels" chart-series="allscoresBarSeries" chart-colors="allscoresBarColors">
+                                    </canvas>
+                            </div>
+                    </div>
+                    <div  class="col-sm-6">
+                        <div style = "padding:10px 0;">
+                            <div class="char-title"> 
+                                The scores of all {{position}}s in {{employee_location}}
+                            </div>
+                        </div>
+                        <div class="charts">
+                                <canvas id="allscoresbyposBar" class="chart chart-bar" height="150px"
+                                chart-data="allscoresbyposBarData" chart-labels="allscoresbyposBarLabels" chart-series="allscoresbyposBarSeries" chart-colors="allscoresbyposBarColors">
+                                </canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    
+                    <div  class="col-sm-6">
+                        <div style = "padding:10px 0;">
+                            <div class="char-title">
+                                Average days overdue by site location
+                            </div>
+                        </div>
+                        <div class="charts">
+                            <canvas id="pie" class="chart chart-pie" width="200" height="145" 
+                                chart-data="daysoverduePieData" chart-labels="daysoverduePieLabels" chart-options="daysoverduePieOptions" chart-click="chartClick">
+                            </canvas> 
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div style = "padding:10px 0;">
+                            <div class="char-title">
+                                {{selected_site_location}}
+                            </div>
+                        </div>
+                        <div class="charts" ng-if="selected_site_location != ''">
+                                <canvas id="daysoverduedetail" class="chart-horizontal-bar"
+                                    chart-data="daysoverduedetailData" chart-labels="daysoverduedetailLabels" chart-series="daysoverduedetailBarSeries" chart-colors="daysoverduedetailColors"
+                                    width="200" height="145">
+                                </canvas> 
+                        </div>
+                       
+                    </div>
+                </div>
+
+            </div>
+
+
+            
+        </div>
+    </div>
+</div>

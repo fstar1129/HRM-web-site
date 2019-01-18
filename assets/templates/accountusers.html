@@ -1,0 +1,49 @@
+<ng-include src="'assets/templates/siteNavigation.html'"></ng-include>
+
+<span class="shadow-top"></span>
+<div class="login-form-wrapper">
+    <form class="form-horizontal" name="user_form">
+
+        <fieldset>
+            <div class="label">First name</div>
+            <input type="text" ng-model="user.firstname" class="" placeholder="First name"  ng-required="true" />
+            <input type="hidden" ng-model="user.id" />
+        </fieldset>
+        <fieldset>
+            <div class="label">Last name</div>
+            <input type="text" ng-model="user.lastname" class="" placeholder="Last name"  ng-required="true" />
+        </fieldset>
+
+        <fieldset>
+            <div class="label">Username</div>
+            <input type="text" ng-model="user.username" class="" placeholder="Enter username"  ng-required="true" />
+        </fieldset>
+        <fieldset>
+            <div class="label">Password</div>
+            <input type="password" ng-model="user.password" class="" placeholder="Enter Password"  ng-required="true" />
+        </fieldset>
+        <fieldset>
+            <div class="label">User role</div>
+            <select ng-model="user.usertype_id" ng-required="true">
+                <option value="">Please select..</option>
+                <option ng-repeat="u in userroles" ng-value="{{u.id}}">{{u.display_text}}</option>
+            </select>
+        </fieldset>
+
+        <div class="userMessage">&nbsp;
+            <div id="log_er_msg"></div>
+            <div id="login_error" class="col-xs-12" ng-show="showMessage == 1">
+                <div class="alert {{ success == 1 ? 'alert-success' : 'alert-danger'}} alert-dismissable">
+                    <i class="fa fa-ban"></i>
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                    {{ userMessage }}
+                </div>
+            </div>
+        </div>
+
+        <div class="buttons">
+            <button ng-click="saveUser()" value="Save" class="btn btn-primary" ng-class="{'disabled': user_form.$invalid }" ng-disabled="user_form.$invalid">Save</button>
+            <button ng-click="releaseLock()" value="Release Lock" class="btn btn-info">Release Lock</button>
+        </div>
+    </form>
+</div>

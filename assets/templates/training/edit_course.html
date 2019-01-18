@@ -1,0 +1,402 @@
+<ng-include src="'assets/templates/siteNavigation.html'"></ng-include>
+<style>
+    .image-viewer {
+        max-width: 100%;
+    }
+    .md-tab {
+        text-transform: capitalize;
+        font-weight: bold;
+    }
+    md-content {
+        overflow: hidden;
+    }
+
+    .remove-image-button {
+        float: right;
+        display: none;
+        color: red;
+        opacity: 1.0;
+    }
+
+    .remove-image-button.show {
+        display: block;
+    }
+
+    .image-box {
+        padding: 10px;
+    }
+
+    .image-box img {
+        padding: 10px;
+    }
+    input {
+        max-width: 100%;
+        border: 0px solid;
+    }
+    
+    .upload-btn {
+        background-color: #f0f0f0;
+        border-radius: 3px;
+    }
+    .upload-btn:hover {
+        background-color: #f6f6f6;
+    }   
+    
+
+</style>
+
+
+<div class="container">
+    <div class="page-title-box">
+        <span class="page-title">{{pageTitle}}</span>
+    </div>
+
+    <form class="form-horizontal" action="course/addCoursefile" id="courseForm" enctype="multipart/form-data" method="POST">
+        <input type="hidden" name="user_id" value='{{course.user_id}}'>
+        <input type="hidden" name="course_id" value='{{course.course_id}}'>
+        <input type="hidden" name="userdata" value='{{userdata}}'>
+        <div ng-cloak="" class="tabsdemoDynamicHeight">
+        <md-content>
+            <md-tabs md-dynamic-height="" md-border-bottom="" md-selected="selectedTab">
+
+                <!-- Main Tab -->
+                <md-tab label="Step 1">
+                    <md-content class="md-padding">
+
+                            <!-- Course Name -->
+                            <div class="form-group">
+                                <label class="control-label col-sm-2" for="course_name">Course Name:</label>
+                                <div class="col-sm-10">
+                                    <input type="text" ng-model='course.course_name' name="course_name" class="form-control" id="course_name">
+                                </div>
+                            </div>
+
+                            <!-- Course Description -->
+                            <div class="form-group">
+                                <label class="control-label col-sm-2" for="course_description">Course Description:</label>
+                                <div class="col-sm-10">
+                                    <textarea class="form-control" rows="5" ng-model='course.course_description' name="course_description" id="course_description"></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Course Category Type -->
+                            <div class="form-group">
+                                <label class="control-label col-sm-2">Course Category:</label>
+                                <div class="col-sm-10">
+                                    <select class="form-control" ng-model="course.course_category_id" name="course_category_id" ng-required="formEnabled == 1">
+                                        <option value="{{s.id}}" ng-repeat="s in course_category" ng-hide="s.label=='GLOBAL'">{{ s.label }}</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Course Type -->
+                            <div class="form-group">
+                                <label class="control-label col-sm-2">Course Type:</label>
+                                <div class="col-sm-10">
+                                    <input type="hidden" name="course_type" value='{{course.course_type}}'>
+                                    <md-radio-group ng-model="course.course_type">
+                                        <md-radio-button value="Multiple Choice" class="md-primary" >Multiple Choice</md-radio-button>
+                                        <md-radio-button value="Questions And Answers"> Questions and Answers </md-radio-button>
+                                    </md-radio-group>
+                                </div>
+                            </div>
+
+                            <!-- Active Course -->
+                            <div class="form-group">
+                                <label class="control-label col-sm-2">Active Course:</label>
+                                <div class="col-sm-10">
+                                    <input type="hidden" name="status" value='{{course.status}}'>
+                                    <md-radio-group ng-model="course.status">
+                                        <md-radio-button value="1" class="md-primary" >Active</md-radio-button>
+                                        <md-radio-button value="0"> Inactive </md-radio-button>
+                                    </md-radio-group>
+                                </div>
+                            </div>
+                    </md-content>
+                </md-tab>
+
+                <!-- Questions Tab -->
+                <md-tab label="Step 2">
+                    <md-content class="md-padding">
+                            <!-- Question Numbers -->
+                            <div class="form-group">
+                                <label class="control-label col-sm-7" for="course_name">How many questions do you want in your course?</label>
+                                <div class="col-sm-1" style="min-width: 100px;">
+                                    <select class="form-control" name="course_question_count" ng-model="course.question_count" ng-options="value for value in questionNumbers" ng-change="updateQuestionNumber()"></select>
+                                </div>
+                            </div>
+
+                            <md-expansion-panel ng-repeat="question in course.questions track by $index" md-component-id="panelOne">
+                                <md-expansion-panel-collapsed ng-click="initQuestion()">
+                                    <div class="md-title" style="max-width: 284px;">Question {{$index + 1}} <small style="font-weight: normal;">(Click here to open question)</small></div>
+                                    
+                                </md-expansion-panel-collapsed>
+
+                                <md-expansion-panel-expanded>
+                                    <md-expansion-panel-header ng-click="$panel.collapse()">
+                                        <div class="md-title">Question {{$index + 1}}</div>
+                                        
+                                    </md-expansion-panel-header>
+
+                                    <md-expansion-panel-content>
+                                        <input type="hidden" name="question_id{{$index}}" value="{{question.question_id}}">
+                                        <input type="hidden" name="question_image{{question.question_id}}" value="{{question.image}}">
+
+                                        <!-- Question Title -->
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-2">Please write your question:</label>
+                                            <div class="col-sm-10">
+                                                <input type="text" class="form-control" ng-model="question.title" name="question_title{{question.question_id}}">
+                                            </div>
+                                        </div>
+
+                                        <!-- Media -->
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-2">Media:</label>
+                                            <div class="col-sm-10" style="padding: 7px 7px 7px 15px;">
+                                                <input type="hidden" name="question_media_type{{question.question_id}}" value="{{question.media_type}}">
+                                                <md-radio-group ng-model="question.media_type" onchange="changeMediaType(question)">
+                                                    <md-radio-button value="0" class="md-primary">Image</md-radio-button>
+                                                    <md-radio-button value="1" class="md-primary">Video Clip</md-radio-button>
+                                                    <md-radio-button value="3" class="md-primary">PDF</md-radio-button>
+                                                </md-radio-group>
+                                            </div>
+                                        </div>
+
+                                        <!-- Media Panel -->
+                                        <div class="form-group">
+                                            <div class="col-sm-2"></div>
+                                            <div class="col-sm-10">
+                                                <div ng-if="question.media_type == 0" class="panel panel-default">
+                                                    <div class="panel-heading">Images</div>
+                                                    <div class="panel-body">
+
+                                                        <div class="row image-box">
+                                                            <input type="file" name="image0_{{question.question_id}}" id="image0-{{question.question_id}}" class="file_multi_image" accept="image/*" onchange="angular.element(this).scope().changedImage(this)">
+                                                            <a ng-if="question.image0 == null" id="remove_image0-{{question.question_id}}" class='close remove-image-button' ng-click="removeImage(question, 0)">&times;</a>
+                                                            <a ng-if="question.image0 != null" id="remove_image0-{{question.question_id}}" class='close remove-image-button show' ng-click="removeImage(question, 0)">&times;</a>
+                                                            <img id="image_view0-{{question.question_id}}" alt="" class="image-viewer" src="{{question.image0}}">
+                                                        </div>
+
+                                                        <div class="row image-box">
+                                                            <input type="file" name="image1_{{question.question_id}}" id="image1-{{question.question_id}}" class="file_multi_image" accept="image/*" onchange="angular.element(this).scope().changedImage(this)">
+                                                            <a ng-if="question.image1 == null" id="remove_image1-{{question.question_id}}" class='close remove-image-button' ng-click="removeImage(question, 1)">&times;</a>
+                                                            <a ng-if="question.image1 != null" id="remove_image1-{{question.question_id}}" class='close remove-image-button show' ng-click="removeImage(question, 1)">&times;</a>
+                                                            <img id="image_view1-{{question.question_id}}" alt="" class="image-viewer" src="{{question.image1}}">
+                                                        </div>
+
+                                                        <div class="row image-box">
+                                                            <input type="file" name="image2_{{question.question_id}}" id="image2-{{question.question_id}}" class="file_multi_image" accept="image/*" onchange="angular.element(this).scope().changedImage(this)">
+                                                            <a ng-if="question.image2 == null" id="remove_image2-{{question.question_id}}" class='close remove-image-button' ng-click="removeImage(question, 2)">&times;</a>
+                                                            <a ng-if="question.image2 != null" id="remove_image2-{{question.question_id}}" class='close remove-image-button show' ng-click="removeImage(question, 2)">&times;</a>
+                                                            <img id="image_view2-{{question.question_id}}" alt="" class="image-viewer" src="{{question.image2}}">
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+                                                
+                                                <input type="hidden" class="uploadedfile" id="uploadedfile_{{question.question_id}}" value="">
+                                                       
+                                                <div ng-if="question.media_type == 1" class="panel panel-default">
+                                                    <div class="panel-heading">Video Clip</div>
+                                                    <div class="panel-body">
+                                                        <video width="100%" height="400" controls id="media_video{{question.question_id}}">
+                                                            <source id="media_video_{{question.question_id}}" src="{{question.video}}">
+                                                        </video>
+                                                        <input type="file" name="media_video_{{question.question_id}}" id="video{{question.question_id}}" class="file_multi_video" accept=".mp4" onchange="angular.element(this).scope().changedVideo(this)">
+                                                        <button class='upload-btn' ng-click='removeFile("video",question.question_id)' type='button'>Remove</button>
+                                                        <button class='upload-btn' ng-click='uploadFile("video",question.question_id)' type='button'>Upload</button>
+                                                        <span>{{ fileuploadMessage }}</span>
+                                                    </div>
+                                                </div>
+<!--
+                                                <div ng-if="question.media_type == 2" class="panel panel-default">
+                                                    <div class="panel-heading">PowerPoint Slide</div>
+                                                    <div class="panel-body">
+                                                        <object width="100%" height="400" data="{{question.ppt}}" id="media_ppt{{question.question_id}}" ></object>
+                                                        <input type="file" name="media_ppt" id="ppt{{question.question_id}}" class="file_multi_ppt" accept=".pptx, .ppt" onchange="angular.element(this).scope().changedPPT(this)">
+                                                        <button class='upload-btn' ng-click='uploadFile("ppt",question.question_id)' type='button'>Upload</button>                                                        
+                                                        <span style="color:#C00;">{{ fileuploadMessage }}</span>
+                                                    </div>
+                                                </div>
+-->
+                                                <div ng-if="question.media_type == 3" class="panel panel-default">
+                                                    <div class="panel-heading">PDF</div>
+                                                    <div class="panel-body">
+                                                        <object width="100%" height="400" frameborder="0" scrolling="no" id="media_pdf{{question.question_id}}" src="{{question.pdf}}" data="{{question.pdf}}"></object>
+                                                        <input type="file" name="media_pdf_{{question.question_id}}" id="pdf{{question.question_id}}" class="file_multi_ppt" accept=".pdf" onchange="angular.element(this).scope().changedPDF(this)">
+                                                        <button class='upload-btn' ng-click='removeFile("pdf",question.question_id)' type='button'>Remove</button>
+                                                        <button class='upload-btn' ng-click='uploadFile("pdf",question.question_id)' type='button'>Upload</button>
+                                                        <span>{{ fileuploadMessage }}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Answer Count -->
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-2">How many answer options do you want?:</label>
+                                            <div class="col-sm-10">
+                                                <select class="form-control" name="question_answer_count{{question.question_id}}" ng-model="question.answer_count" ng-options="num for num in answerNumbers" ng-change="updateAnswerNumber(question)" style="width: 130px;"></select>
+                                            </div>
+                                        </div>
+
+                                        <!-- Answer Input -->
+                                        <div style="padding-left: 80px; padding-right: 80px;">
+                                            <input type="hidden" name="correct_answer{{question.question_id}}" value="{{question.correct_answer_id}}">
+                                            <md-radio-group ng-model="question.correct_answer_id">
+                                                <div ng-repeat="answer in question.answers track by $index" class="form-group">
+                                                    <div style="margin: auto; width: 70%;">
+                                                        <md-radio-button value="{{answer.answer_id}}" class="md-primary" style="display:inline-block; margin-top: 7px;"></md-radio-button>
+                                                        <input type="hidden" name="answer_id{{question.question_id}}_{{$index}}" value="{{answer.answer_id}}">
+                                                        <input type="text" name="answer{{question.question_id}}_{{answer.answer_id}}" class="form-control" ng-model="answer.title" style="display: inline-block; width: 90%; float: right;">
+                                                    </div>
+                                                </div>
+                                            </md-radio-group>
+                                        </div>
+
+                                    </md-expansion-panel-content>
+                                </md-expansion-panel-expanded>
+                            </md-expansion-panel>
+                    </md-content>
+                </md-tab>
+
+                <!-- Settings Tab -->
+                <md-tab label="Step 3">
+                    <md-content class="md-padding">
+                        <!-- Time Limit -->
+                        <div class="form-group">
+                            <input type="hidden" name="time_limit" value='{{course.time_limit}}'>
+                            <label class="control-label col-sm-8">Do you want a time limit on for each of these questions when displayed?</label>
+                            <div class="col-sm-4">
+                                <md-radio-group ng-model="course.time_limit" name="time_limit">
+                                    <md-radio-button value="15">Yes 15 seconds</md-radio-button>
+                                    <md-radio-button value="60">Yes 1 minute</md-radio-button>
+                                    <md-radio-button value="300">Yes 5 minutes</md-radio-button>
+                                    <md-radio-button value="600">Yes 10 minutes</md-radio-button>
+                                    <md-radio-button value="0">No</md-radio-button>
+                                </md-radio-group>
+                            </div>
+                        </div>
+                        <hr>
+
+                        <!-- Is Randomised -->
+                        <div class="form-group">
+                            <input type="hidden" name="is_randomized" value='{{course.is_randomized}}'>
+                            <label class="control-label col-sm-8">Do you want these questions randomised when they are displayed?</label>
+                            <div class="col-sm-4">
+                                <md-radio-group ng-model="course.is_randomized" name="is_randomized" id="is_randomized">
+                                    <md-radio-button value="1">Yes</md-radio-button>
+                                    <md-radio-button value="0">No</md-radio-button>
+                                </md-radio-group>
+                            </div>
+                        </div>
+                        <hr>
+
+                        <!-- Display Error Message -->
+                        <div class="form-group">
+                            <input type="hidden" name="display_error_message" value='{{course.display_error_message}}'>
+                            <label class="control-label col-sm-8">Do you want error messages to display in they get a question right or wrong?</label>
+                            <div class="col-sm-4">
+                                <md-radio-group ng-model="course.display_error_message" name="display_error_message" id="display_error_message">
+                                    <md-radio-button value="1">Yes</md-radio-button>
+                                    <md-radio-button value="0">No</md-radio-button>
+                                </md-radio-group>
+                            </div>
+                        </div>
+                        <hr>
+
+                        <!-- Re-Order -->
+                        <div class="form-group">
+                            <input type="hidden" name="reorder" value='{{course.reorder}}'>
+                            <label class="control-label col-sm-8">Do you want the right and wrong answers to be re-ordered each test?</label>
+                            <div class="col-sm-4">
+                                <md-radio-group ng-model="course.reorder" name="reorder" id="reorder">
+                                    <md-radio-button value="1">Yes</md-radio-button>
+                                    <md-radio-button value="0">No</md-radio-button>
+                                </md-radio-group>
+                            </div>
+                        </div>
+                        <hr>
+
+                        <!-- Comeback -->
+                        <div class="form-group">
+                            <input type="hidden" name="is_comeback" value='{{course.is_comeback}}'>
+                            <label class="control-label col-sm-8">Do you want the user to be able to leave the course and come back to complete it at a later time within the time period?</label>
+                            <div class="col-sm-4">
+                                <md-radio-group ng-model="course.is_comeback" name="is_comeback" id="is_comeback">
+                                    <md-radio-button value="1">Yes</md-radio-button>
+                                    <md-radio-button value="0">No</md-radio-button>
+                                </md-radio-group>
+                            </div>
+                        </div>
+                        <hr>
+
+                        <!-- Try Again -->
+                        <div class="form-group">
+                            <input type="hidden" name="try_again" value='{{course.try_again}}'>
+                            <label class="control-label col-sm-8">Do you want the user to be able to "try a question again" if they get it wrong or just move to the next?</label>
+                            <div class="col-sm-4">
+                                <md-radio-group ng-model="course.try_again" name="try_again" id="try_again">
+                                    <md-radio-button value="1">Yes</md-radio-button>
+                                    <md-radio-button value="0">No</md-radio-button>
+                                </md-radio-group>
+                            </div>
+                        </div>
+                        <hr>
+
+                        <!-- Global -->
+                        <span ng-show="isAdmin == true">
+                            <div class="form-group">
+                                <input type="hidden" name="is_global" value='{{course.is_global}}'>
+                                <label class="control-label col-sm-8">Do you want to make this course GLOBAL?</label>
+                                <div class="col-sm-4">
+                                    <md-radio-group ng-model="course.is_global" name="is_global" id="is_global">
+                                        <md-radio-button value="1">Yes</md-radio-button>
+                                        <md-radio-button value="0">No</md-radio-button>
+                                    </md-radio-group>
+                                </div>
+                            </div>
+                            <hr>
+                        </span>
+
+                        <!-- Auto Inactive time -->
+                        <div class="form-group">
+                            <input type="hidden" name="is_auto_inactive" value='{{course.is_auto_inactive}}'>
+                            <input type="hidden" name="auto_inactive_time" value='{{course.auto_inactive_time}}'>
+                            <label class="control-label col-sm-8">Do you want this course to automatically become inactive on a certain date?</label>
+                            <div class="col-sm-4">
+                                <md-radio-group ng-model="course.is_auto_inactive" name="is_auto_inactive" id="is_auto_inactive">
+                                    <md-radio-button value="1">Yes</md-radio-button>
+                                    <div style="margin-bottom: 10px;" ng-show="course.is_auto_inactive == 1">
+                                        <input type="date" ng-model = 'course.auto_inactive_time ' name="auto_inactive_time " class="form-control" id="auto_inactive_time ">
+                                    </div>
+                                    <md-radio-button value="0">No</md-radio-button>
+                                </md-radio-group>
+                            </div>
+                        </div>
+
+                    </md-content>
+                </md-tab>
+            </md-tabs>
+        </md-content>
+    </div>
+        <div class="form-group" style="float: right; padding: 20px;">
+        <!--<button ng-click="saveCourse()" value="Submit" class="btn btn-primary" ng-class="{'disabled': courseform.$invalid }" ng-disabled="courseform.$invalid || formEnabled == 0">Save</button>-->
+               
+        <button  class="btn btn-primary" type="button" ng-click="nextTab()" ng-show="showSave == 0">Next</button>
+        <button class="btn btn-primary" type="button" ng-click="saveCourse()" ng-show="showSave == 1">Save</button>
+        <button class="btn btn-info" ng-click="cancel()" ng-disabled="formEnabled == 0">Cancel</button>        
+        
+        
+        
+    </div>
+    </form>
+</div>
+
+<script>
+//    function changeVideo(obj) {
+//        var fileUrl = window.URL.createObjectURL(obj.files[0]);
+//        $('#media_video').attr('src', fileUrl);
+//    }
+</script>

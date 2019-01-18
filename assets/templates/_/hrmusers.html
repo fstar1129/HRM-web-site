@@ -1,0 +1,93 @@
+<ng-include src="'assets/templates/siteNavigation.html'"></ng-include>
+
+<div class="container">
+    <div class="page-title-box">
+        <span class="page-title">{{pageTitle}}</span>
+    </div>
+
+    <div class="row" style="padding-left: 15px; padding-right: 15px;">
+        <div style="display: inline-block; width: 40%;">
+            <div class="input-group">
+                <div class="input-group-addon"><i class="fa fa-search"></i></div>
+                <input type="text" class="form-control" placeholder="Search..." ng-model="search">
+            </div>
+        </div>
+        <button class="btn btn-primary" style="float: right; display: inline-block;" ng-click="newUser()"> New User </button>
+    </div>
+    <div class="row" style="margin-left: 0px; margin-right: 0px;">
+        <table class="table table-striped" id="course_table">
+            <thead style="background-color: #0e90d2; color: white;">
+            <tr>
+                <th ng-click="sort('name')">Name
+                    <span class="fa sort-icon" ng-show="sortKey=='name'" ng-class="{'fa-caret-up':reverse,'fa-caret-down':!reverse}"></span>
+                </th>
+                <th ng-click="sort('email')">Email
+                    <span class="fa sort-icon" ng-show="sortKey=='email'" ng-class="{'fa-caret-up':reverse,'fa-caret-down':!reverse}"></span>
+                </th>
+                <th ng-click="sort('username')">Username
+                    <span class="fa sort-icon" ng-show="sortKey=='username'" ng-class="{'fa-caret-up':reverse,'fa-caret-down':!reverse}"></span>
+                </th>
+                <th ng-click="sort('phone')">Phone
+                    <span class="fa sort-icon" ng-show="sortKey=='phone'" ng-class="{'fa-caret-up':reverse,'fa-caret-down':!reverse}"></span>
+                </th>
+                <th ng-click="sort('number_of_employees')">Number of Employees
+                    <span class="fa sort-icon" ng-show="sortKey=='number_of_employees'" ng-class="{'fa-caret-up':reverse,'fa-caret-down':!reverse}"></span>
+                </th>
+                <th ng-click="sort('role')" width="150px;">User Role
+                    <span class="fa sort-icon" ng-show="sortKey=='role'" ng-class="{'fa-caret-up':reverse,'fa-caret-down':!reverse}"></span>
+                </th>
+                <th ng-click="sort('status')" width="150px;">Status
+                    <span class="fa sort-icon" ng-show="sortKey=='status'" ng-class="{'fa-caret-up':reverse,'fa-caret-down':!reverse}"></span>
+                </th>
+                <th width="70px;">
+                    Action
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr dir-paginate="user in users|orderBy:sortKey:reverse|filter:search|itemsPerPage:10">
+                <td>
+                    {{user.firstname}} {{user.lastname}}
+                </td>
+                <td>
+                    {{user.email}}
+                </td>
+                <td>
+                    {{user.username}}
+                </td>
+                <td>
+                    {{user.telephone}}
+                </td>
+                <td>
+                    {{user.numEmployees}}
+                </td>
+                <td>
+                    {{user.role}}
+                </td>
+                <td>
+                    <div ng-if="user.active == 0" class="btn-group">
+                        <button type="button" class="btn btn-sm btn-default btn-group-child" ng-click="activateUser(user, 1)">Active</button>
+                        <button type="button" class="btn btn-sm btn-success btn-group-child" ng-click="activateUser(user, 0)">Inactive</button>
+                    </div>
+                    <div ng-if="user.active == 1" class="btn-group">
+                        <button type="button" class="btn btn-sm btn-success btn-group-child" ng-click="activateUser(user, 1)">Active</button>
+                        <button type="button" class="btn btn-sm btn-default btn-group-child" ng-click="activateUser(user, 0)">Inactive</button>
+                    </div>
+                </td>
+                <td>
+                    <a class="action-button" ng-click="editUser(user)"><i class="fa fa-edit"></i></a>
+                    <a class="action-button" ng-click="deleteUser(user)"><i class="fa fa-trash-o"></i></a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div style="height: 100px; text-align: center;">
+            <dir-pagination-controls
+                    max-size="10"
+                    direction-links="true"
+                    boundary-links="true" >
+            </dir-pagination-controls>
+        </div>
+    </div>
+</div>
