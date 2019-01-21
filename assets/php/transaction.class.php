@@ -1512,8 +1512,7 @@ class transaction {
         $e->getRow();
         $site_location_id = $e->row["site_location"];
         $e = new db("performance_forms");
-        $sql = "SELECT * FROM performance_forms";
-        $e->select(false, false, $sql); 
+        $e->select("user_status = :active", false, false, array("active" => 1)); 
         $form_reviews = array();
         
         while($e->getRow()){
@@ -1533,7 +1532,8 @@ class transaction {
                             "questions" => $e->row["questions"],
                             "scores" => $e->row["scores"],
                             "comments" => $e->row["comments"],
-                            "review_date" => $e->row["review_date"]);
+                            "review_date" => $e->row["review_date"],
+                            "frequency" => $e->row["frequency"]);
                 array_push($form_reviews, $row);
             }
         }
@@ -1551,8 +1551,17 @@ class transaction {
         $data = array();
         $data["scores"] = $post->scores;
         $data["comments"] = $post->comments;
-        $data["form_status"] = "completed";
+        $e = new db("performance_forms");
+        $e->select("id = :id", false, false, array("id" => $post->id));
+        $e->getRow();
+        date_default_timezone_get("Australia/Sydney");
         $data["review_date"] = date("Y-m-d");
+        $time = strtotime(date("Y-m-d"));
+        $final = date("Y-m-d", strtotime("+". $e->row["frequency"] / 1 ." month", $time));
+        $data["scores"] .= "~#".$data["scores"];
+        $data["comments"] .= "!#".$data["comments"];
+        // $data["assessment_date"] = $post->form->start_date == null ? null : $final;
+        $data["assessment_date"] = $final;
         $e = new db("performance_forms");
         $data1 = $data;
         $data1["id"] = $post->id;
@@ -1584,7 +1593,7 @@ class transaction {
         $e->getRow();
         $site_location_id = $e->row["site_location"];
         $e = new db("performance_forms");
-        $e->select("employee_id = :id AND form_status = :completed", false, false, array("id" => $post->userData->id, "completed" => "completed"));
+        $e->select("employee_id = :id", false, false, array("id" => $post->userData->id));
         $form_reviews = array();
         
         while($e->getRow()){

@@ -62,11 +62,12 @@ app.controller('viewperformancereviewController', ['$scope', '$rootScope', 'cook
                 id: review.id,
                 form_status: review.form_status,
                 questions: review.questions,
-                scores: review.scores,
-                comments: review.comments,
+                scores: review.scores.split("~#")[review.scores.split("~#").length - 1],
+                comments: review.comments.split("!#")[review.comments.split("!#").length - 1],
                 manager_name: review.manager_name,
-                assessment_date: review.form_status == "completed" ? "Completed" : $scope.formatDate(review.assessment_date), 
-                review_date: $scope.formatDate(review.review_date),
+                // assessment_date: review.form_status == "completed" ? "Completed" : $scope.formatDate(review.assessment_date), 
+                assessment_date: $scope.formatDate(review.assessment_date), 
+                review_date: $scope.formatDate(review.review_date)
             }
         });
         $scope.standardQuestionList = response.data.standard_questions;

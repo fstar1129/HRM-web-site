@@ -57,6 +57,26 @@ app.controller('performancereviewController', ['$scope', '$rootScope', 'cookie',
             return diffDays + " days";
         }
     }
+    $scope.calcDaysBeforeReviewNum = function(assessment_date){
+        var date1 = new Date(assessment_date);
+        var date2 = new Date();
+        var timeDiff = Math.abs(date2.getTime() - date1.getTime());
+        var diffDays = "";
+        var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
+        if(diffDays == 0){
+            return 0;
+        }else if(date1 < date2 && diffDays == 1){
+            diffDays *= -1;
+            return diffDays;
+        }else if(date1 < date2 && diffDays != 1){
+            diffDays *= -1;
+            return diffDays;
+        }else if(date1 > date2 && diffDays == 1){
+            return diffDays;
+        }else if(date1 > date2 && diffDays != 1){
+            return diffDays;
+        }
+    }
     $scope.deleteForm = function(fDetail) {
         if(perms.performancereview.delete == 0) return;
         var answer = confirm("Delete the review for " + fDetail.employee_name + '? Are you sure?');
@@ -96,23 +116,23 @@ app.controller('performancereviewController', ['$scope', '$rootScope', 'cookie',
         angular.forEach($scope.questions, function (value, key) {
             if(key < $scope.questions.length - 1) $scope.specializedQuestionList.push({id : key + 1, question_text : value});
         });  
-        if(obj.scores == ""){
+        // if(obj.scores == ""){
             if(userData.firstname + ' ' + userData.lastname != obj.manager_name){
                 $scope.edit_option = 0;
                 return;
             }
             $scope.edit_option = obj.id;
             return
-        }else{
-            $scope.scores = obj.scores.split(",");
-            angular.forEach($scope.scores, function (value, key) {
-                if(key < $scope.scores.length - 1) $scope.scoreList.push({id : key + 1, score : value});
-            });
-            $scope.comments = obj.comments.split("~#");
-            angular.forEach($scope.comments, function (value, key) {
-                if(key < $scope.comments.length - 1) $scope.commentList.push({id : key + 1, comment : value});
-            });
-        }
+        // }else{
+        //     $scope.scores = obj.scores.split(",");
+        //     angular.forEach($scope.scores, function (value, key) {
+        //         if(key < $scope.scores.length - 1) $scope.scoreList.push({id : key + 1, score : value});
+        //     });
+        //     $scope.comments = obj.comments.split("~#");
+        //     angular.forEach($scope.comments, function (value, key) {
+        //         if(key < $scope.comments.length - 1) $scope.commentList.push({id : key + 1, comment : value});
+        //     });
+        // }
     }
     $scope.clearForm = function() {
         $scope.specializedQuestionList = angular.copy($scope.master);
@@ -124,7 +144,12 @@ app.controller('performancereviewController', ['$scope', '$rootScope', 'cookie',
 
     hrmAPIservice.getFormReviews(userData).then(function(response) {
         console.log(response.data);
-        $scope.gridOptionsComplex.data = response.data.form_reviews.map(function(review){
+        $scope.gridOptionsComplex.data = response.data.form_reviews.filter(function(review){
+            if(Math.ceil(review.frequency * 30 / 4) < $scope.calcDaysBeforeReviewNum(review.assessment_date)){
+                return false;
+            }
+            return true;
+        }).map(function(review){
             return{
                 id: review.id,
                 form_status: review.form_status,
@@ -133,9 +158,11 @@ app.controller('performancereviewController', ['$scope', '$rootScope', 'cookie',
                 comments: review.comments,
                 manager_name: review.manager_name,
                 employee_name: review.employee_name,
-                assessment_date: review.form_status == "completed" ? "Completed" : $scope.formatDate(review.assessment_date), 
+                // assessment_date: review.form_status == "completed" ? "Completed" : $scope.formatDate(review.assessment_date), 
+                assessment_date: $scope.formatDate(review.assessment_date), 
                 start_date: $scope.formatDate(review.start_date),
-                days_before_review: review.form_status == "completed" ? "N/A" : $scope.calcDaysBeforeReview(review.assessment_date)
+                //days_before_review: review.form_status == "completed" ? "N/A" : $scope.calcDaysBeforeReview(review.assessment_date)
+                days_before_review: $scope.calcDaysBeforeReview(review.assessment_date)
             }
         });
         $scope.standardQuestionList = response.data.standard_questions;
@@ -163,8 +190,12 @@ app.controller('performancereviewController', ['$scope', '$rootScope', 'cookie',
             }
             console.log($scope.commentText);
             hrmAPIservice.saveFormReview($scope.scoreText, $scope.commentText, $scope.edit_option, userData).then(function(response) {//edit_option is the form id to review
-                console.log(response.data.form_reviews);
-                $scope.gridOptionsComplex.data = response.data.form_reviews.map(function(review){
+                $scope.gridOptionsComplex.data = response.data.form_reviews.filter(function(review){
+                    if(Math.ceil(review.frequency * 30 / 4) < $scope.calcDaysBeforeReviewNum(review.assessment_date)){
+                        return false;
+                    }
+                    return true;
+                }).map(function(review){
                     return{
                         id: review.id,
                         form_status: review.form_status,
@@ -173,9 +204,11 @@ app.controller('performancereviewController', ['$scope', '$rootScope', 'cookie',
                         comments: review.comments,
                         manager_name: review.manager_name,
                         employee_name: review.employee_name,
-                        assessment_date: review.form_status == "completed" ? "Completed" : $scope.formatDate(review.assessment_date), 
+                        // assessment_date: review.form_status == "completed" ? "Completed" : $scope.formatDate(review.assessment_date), 
+                        assessment_date: $scope.formatDate(review.assessment_date), 
                         start_date: $scope.formatDate(review.start_date),
-                        days_before_review: review.form_status == "completed" ? "N/A" : $scope.calcDaysBeforeReview(review.assessment_date)
+                        //days_before_review: review.form_status == "completed" ? "N/A" : $scope.calcDaysBeforeReview(review.assessment_date)
+                        days_before_review: $scope.calcDaysBeforeReview(review.assessment_date)
                     }
                 });
                 
