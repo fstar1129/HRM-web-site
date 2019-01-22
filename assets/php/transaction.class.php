@@ -851,23 +851,22 @@ class transaction {
         while ($e->getRow()) {
             array_push($data,$e->row); 
         }
-        /*
+        
         $data1 = array();
         $e = new db("data");
         foreach($data as $row){
-            $sql = "SELECT data.display_text FROM data INNER JOIN employee_work ON employee_work.site_location = data.id WHERE employee_work.employee_id = " . $row['id'];
+            $sql = "SELECT dt.display_text FROM user_work as usrwk INNER JOIN data AS dt ON usrwk.site_location = dt.id WHERE usrwk.user_id = " . $row['id'].  " ORDER BY usrwk.workdate_added DESC LIMIT 1";
             $e->select(false,false, $sql);
 
             $e->getRow();
             $row["StateName"] = $e->row["display_text"];
             array_push($data1, $row);
         }
-*/
-        if ($returnData) {
-            return $data;
-        }
 
-        echo json_encode($data);
+        if ($returnData) {
+            return $data1;
+        }
+        echo json_encode($data1);
 
     }
 
@@ -5186,18 +5185,19 @@ class transaction {
         $employee_name = array();
         $total_score = array();
         $e = new db("user_work");
-        $sql = "SELECT DISTINCT(site_location) FROM user_work WHERE user_id = ".$id;
+        $sql = "SELECT DISTINCT(site_location) FROM user_work WHERE user_id = ".$id." ORDER BY workdate_added DESC LIMIT 1";
         $e->select(false, false, $sql);
         $e->getRow();
         $site_location = $e->row["site_location"];
-
         $pf = new db("performance_forms");
         $sql = "SELECT DISTINCT pf.employee_id, pf.scores, CONCAT(user.firstname, ' ', user.lastname) AS nm  FROM performance_forms AS pf INNER JOIN user_work AS ewk ON ewk.user_id = pf.employee_id AND ewk.site_location = ".$site_location.
                    " WHERE pf.scores <> '' AND YEAR(review_date) = ".$year;
         $pf->select(false,false,$sql);
         while($pf->getRow()){
             array_push($employee_name, $pf->row["nm"]);
-            $scores = explode(",", rtrim($pf->row["scores"], ","));
+            $scores = explode("~#", $pf->row["scores"]);
+            $scores = $scores[sizeof($scores) - 1];
+            $scores = explode(",", rtrim($scores, ","));
             $score = 0;
             foreach($scores as $key => $value){
                 $score += intval($value);
@@ -5215,7 +5215,7 @@ class transaction {
         $employee_name = array();
         $total_score = array();
         $e = new db("user_work");
-        $sql = "SELECT DISTINCT user_work.* FROM user_work WHERE user_id = ".$id;
+        $sql = "SELECT DISTINCT user_work.* FROM user_work WHERE user_id = ".$id." ORDER BY workdate_added DESC LIMIT 1";
         $e->select(false, false, $sql);
         $e->getRow();
         $site_location = $e->row["site_location"];
@@ -5226,7 +5226,9 @@ class transaction {
         $pf->select(false,false,$sql);
         while($pf->getRow()){
             array_push($employee_name, $pf->row["nm"]);
-            $scores = explode(",", rtrim($pf->row["scores"], ","));
+            $scores = explode("~#", $pf->row["scores"]);
+            $scores = $scores[sizeof($scores) - 1];
+            $scores = explode(",", rtrim($scores, ","));
             $score = 0;
             foreach($scores as $key => $value){
                 $score += intval($value);
@@ -5248,7 +5250,7 @@ class transaction {
        $site_locations = array();
        $days_overdue = array();
        $ek = new db("user_work");
-       $sql = "SELECT DISTINCT ewk.site_location as sl FROM user_work AS ewk INNER JOIN performance_forms AS pf ON pf.employee_id = ewk.user_id AND pf.account_id = ".$userId;
+       $sql = "SELECT DISTINCT ewk.site_location as sl FROM user_work AS ewk INNER JOIN performance_forms AS pf ON pf.employee_id = ewk.user_id AND pf.account_id = ".$userId. " ORDER BY ewk.workdate_added DESC LIMIT 1";
        $ek->select(false,false,$sql);
        while($ek->getRow()){
            
@@ -5259,7 +5261,7 @@ class transaction {
            $sql = "SELECT pf.assessment_date, pf.review_date, pf.form_status FROM performance_forms AS pf INNER JOIN user_work AS emk ON emk.site_location = ".$ek->row["sl"]. " AND emk.user_id = pf.employee_id";
            $pf = new db("performance_forms");
            $pf->select(false, false, $sql);
-           $over_due = 0;
+           $over_due = 1;
            while($pf->getRow()){
                if($pf->row["form_status"] == 'completed'){
                     if($pf->row["assessment_date"] < $pf->row["review_date"]){
@@ -5298,7 +5300,7 @@ class transaction {
         while($pf->getRow()){
             $pf1 = new db("performance_forms");
             $pf1->select("employee_id = :id", false, false, array("id" => $pf->row["employee_id"]));
-            $over_due = 0;
+            $over_due = 1;
             while($pf1->getRow()){
                 if($pf1->row["form_status"] == 'completed'){
                     if($pf1->row["assessment_date"] < $pf1->row["review_date"]){

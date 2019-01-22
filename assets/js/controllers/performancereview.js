@@ -47,14 +47,14 @@ app.controller('performancereviewController', ['$scope', '$rootScope', 'cookie',
             return "today";
         }else if(date1 < date2 && diffDays == 1){
             diffDays *= -1;
-            return diffDays += " day";
+            return diffDays += " day overdue";
         }else if(date1 < date2 && diffDays != 1){
             diffDays *= -1;
-            return diffDays += " days";
+            return diffDays += " days overdue";
         }else if(date1 > date2 && diffDays == 1){
-            return diffDays + " day";
+            return diffDays + " day overdue";
         }else if(date1 > date2 && diffDays != 1){
-            return diffDays + " days";
+            return diffDays + " days overdue";
         }
     }
     $scope.calcDaysBeforeReviewNum = function(assessment_date){

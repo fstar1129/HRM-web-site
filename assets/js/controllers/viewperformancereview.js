@@ -21,7 +21,7 @@ app.controller('viewperformancereviewController', ['$scope', '$rootScope', 'cook
           { name: 'questions', visible: false },
           { name: 'scores', visible: false },
           { name: 'comments', visible: false },
-          { name: 'manager_name', displayName: 'Manager Conducting Review"', width: '25%', enableCellEdit: false },
+          { name: 'manager_name', displayName: 'Manager Conducting Review', width: '25%', enableCellEdit: false },
           { name: 'review_date', displayName: 'Date of Entry', width: '30%', enableFiltering: true, cellClass: 'center',enableCellEdit: false},
           { name: 'assessment_date', displayName: 'Next Review Date', width: '30%', enableFiltering: true, cellClass: 'center',enableCellEdit: false},
           { name: 'action', enableFiltering: false, width: '15%',  cellClass: 'center', enableCellEdit: false,

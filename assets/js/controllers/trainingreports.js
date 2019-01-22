@@ -254,15 +254,16 @@ app.controller('trainingreportsController', ['$scope', '$rootScope', 'cookie','u
         ]
     };
     
-    $scope.calcAverageScore = function(scores){
+    $scope.calcTotalScore = function(scores){
+        scores = scores.split("~#")[scores.split("~#").length - 1];
         var scoreList = scores.split(",");
-        var average_score = 0;
+        var total_score = 0;
         scoreList.forEach(function(value, index){
             if(value != ""){    
-                average_score += value / 1; 
+                total_score += value / 1; 
             }
         });
-        return average_score;
+        return total_score;
     }
     hrmAPIservice.getReviewReports(userData).then(function(response) {
         console.log(response.data);
@@ -271,7 +272,7 @@ app.controller('trainingreportsController', ['$scope', '$rootScope', 'cookie','u
                 id: review.id,
                 employee_name: review.employee_name,
                 site_location: review.site_location,
-                average_score: $scope.calcAverageScore(review.scores),
+                average_score: $scope.calcTotalScore(review.scores),
                 department: review.department_name,
             }
         });
@@ -444,7 +445,6 @@ app.controller('trainingreportsController', ['$scope', '$rootScope', 'cookie','u
         hrmAPIservice
             .send("days_overdue/" + $scope.userId)
             .then(function (response) {
-                
                 if (response.data.pieData == null) {
                     $scope.daysoverduePieData = [];
                     $scope.daysoverduePieLabels = [];

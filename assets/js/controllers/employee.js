@@ -629,6 +629,7 @@ app.controller('employeeController', [
         hrmAPIservice
             .getEmployeeData(userData)
             .then(function (response) {
+                console.log(response.data);
                 $scope.gridOptionsComplex.data = response.data.employees;
                 $scope.countryList = response.data.countries;
                 $scope.stateList = response.data.states;
