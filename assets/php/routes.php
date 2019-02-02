@@ -467,15 +467,34 @@ $app->post('/performance/saveFormReview', function ($request, $response, $args) 
     $result = $trans->saveFormReview($params);
     return $response->withStatus(200)->write($result);
 });
-
 //newly added
-$app->post('/report/getReviewReports', function ($request, $response, $args) {
+$app->post('/performance/deleteFormReview', function ($request, $response, $args) {
     $params = json_decode($request->getBody());
     $trans = new transaction();
-    $result = $trans->getReviewReports($params);
+    $result = $trans->deleteFormReview($params);
     return $response->withStatus(200)->write($result);
 });
-
+//newly added
+$app->post('/report/getScoresByYear', function ($request, $response, $args) {
+    $params = json_decode($request->getBody());
+    $trans = new transaction();
+    $result = $trans->getScoresByYear($params);
+    return $response->withStatus(200)->write($result);
+});
+//newly added
+$app->post('/report/getScoresBySitelocation', function ($request, $response, $args) {
+    $params = json_decode($request->getBody());
+    $trans = new transaction();
+    $result = $trans->getScoresBySitelocation($params);
+    return $response->withStatus(200)->write($result);
+});
+//newly added
+$app->post('/report/getScoresByPosition', function ($request, $response, $args) {
+    $params = json_decode($request->getBody());
+    $trans = new transaction();
+    $result = $trans->getScoresByPosition($params);
+    return $response->withStatus(200)->write($result);
+});
 //newly added
 $app->post('/profile/getFormReviewsForView', function ($request, $response, $args) {
     $params = json_decode($request->getBody());

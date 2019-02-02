@@ -327,7 +327,7 @@ app.service("hrmAPIservice", function ($http, cookie) {
             })
         },
         //newly added
-        hrmAPI.saveFormReview = function (scores, comments, id, userData) {
+        hrmAPI.saveFormReview = function (scores, comments, id, p_form_id,  userData) {
             return cookie.resetCookie(),
             $http({
                 method: "POST",
@@ -335,23 +335,63 @@ app.service("hrmAPIservice", function ($http, cookie) {
                     scores: scores,
                     comments: comments,
                     id: id,
+                    p_form_id: p_form_id,
                     userData: userData
                 },
                 url: "performance/saveFormReview"
             })
         },
         //newly added
-        hrmAPI.getReviewReports = function (userData) {
+        hrmAPI.deleteFormReview = function (fdetail, userData) {
             return cookie.resetCookie(),
             $http({
                 method: "POST",
                 data: {
+                    id: fdetail.id,
                     userData: userData
                 },
-                url: "report/getReviewReports"
+                url: "performance/deleteFormReview"
             })
         },
-        
+
+        //newly added
+        hrmAPI.getScoresByYear = function (year, userId) {
+            return cookie.resetCookie(),
+            $http({
+                method: "POST",
+                data: {
+                    year: year,
+                    userId: userId
+                },
+                url: "report/getScoresByYear"
+            })
+        },
+        //newly added
+        hrmAPI.getScoresByPosition = function (year, account_id, user_id) {
+            return cookie.resetCookie(),
+            $http({
+                method: "POST",
+                data: {
+                    year: year,
+                    account_id: account_id,
+                    user_id: user_id
+                },
+                url: "report/getScoresByPosition"
+            })
+        },
+        //newly added
+        hrmAPI.getScoresBySitelocation = function (year, account_id, user_id) {
+            return cookie.resetCookie(),
+            $http({
+                method: "POST",
+                data: {
+                    year: year,
+                    account_id: account_id,
+                    user_id: user_id
+                },
+                url: "report/getScoresBySitelocation"
+            })
+        },
         //newly added
         hrmAPI.getFormReviewsForView = function (userData) {
             return cookie.resetCookie(),

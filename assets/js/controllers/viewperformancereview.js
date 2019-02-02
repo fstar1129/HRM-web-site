@@ -17,12 +17,12 @@ app.controller('viewperformancereviewController', ['$scope', '$rootScope', 'cook
         },
         columnDefs: [
           { name: 'id', visible: false },
-          { name: 'form_status', visible: false },
+          { name: 'p_forms_id', visible: false },
           { name: 'questions', visible: false },
           { name: 'scores', visible: false },
           { name: 'comments', visible: false },
           { name: 'manager_name', displayName: 'Manager Conducting Review', width: '25%', enableCellEdit: false },
-          { name: 'review_date', displayName: 'Date of Entry', width: '30%', enableFiltering: true, cellClass: 'center',enableCellEdit: false},
+          { name: 'completed_date', displayName: 'Date of Entry', width: '30%', enableFiltering: true, cellClass: 'center',enableCellEdit: false},
           { name: 'assessment_date', displayName: 'Next Review Date', width: '30%', enableFiltering: true, cellClass: 'center',enableCellEdit: false},
           { name: 'action', enableFiltering: false, width: '15%',  cellClass: 'center', enableCellEdit: false,
               cellTemplate: '<div class="ui-grid-cell-contents grid-center-cell"><span ng-click="grid.appScope.editForm(row.entity)"><span class="glyphicon glyphicon-edit text-edit"></span></div>'
@@ -36,7 +36,7 @@ app.controller('viewperformancereviewController', ['$scope', '$rootScope', 'cook
         $scope.specializedQuestionList = [];
         $scope.scoreList = [];
         $scope.commentList = [];
-        $scope.questions = obj.questions.split(",");
+        $scope.questions = obj.questions.split("~#");
         angular.forEach($scope.questions, function (value, key) {
             if(key < $scope.questions.length - 1) $scope.specializedQuestionList.push({id : key + 1, question_text : value});
         });  
@@ -60,14 +60,14 @@ app.controller('viewperformancereviewController', ['$scope', '$rootScope', 'cook
         $scope.gridOptionsComplex.data = response.data.form_reviews.map(function(review){
             return{
                 id: review.id,
-                form_status: review.form_status,
+                p_forms_id: review.p_forms_id,
                 questions: review.questions,
-                scores: review.scores.split("~#")[review.scores.split("~#").length - 1],
-                comments: review.comments.split("!#")[review.comments.split("!#").length - 1],
+                scores: review.scores,
+                comments: review.comments,
                 manager_name: review.manager_name,
                 // assessment_date: review.form_status == "completed" ? "Completed" : $scope.formatDate(review.assessment_date), 
                 assessment_date: $scope.formatDate(review.assessment_date), 
-                review_date: $scope.formatDate(review.review_date)
+                completed_date: $scope.formatDate(review.completed_date)
             }
         });
         $scope.standardQuestionList = response.data.standard_questions;

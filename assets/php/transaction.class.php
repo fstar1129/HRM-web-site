@@ -119,14 +119,14 @@ class transaction {
          echo json_encode(array('res' => $data));
   
       }
-
+      //newly modified
       public function initialDataYr($userId) {
-        $d      = new db('employee_work');
+        $d      = new db('user_work');
 
-        $sql    = "SELECT YEAR(employee_work.workdate_added) AS year 
-        FROM employee_work INNER JOIN (SELECT id FROM employee e WHERE deleted = 0 AND account_id =  :uid) employee_t ON employee_work.employee_id = employee_t.id 
-        GROUP BY YEAR(employee_work.workdate_added) ORDER BY year";
-
+        // $sql    = "SELECT YEAR(employee_work.workdate_added) AS year 
+        // FROM employee_work INNER JOIN (SELECT id FROM employee e WHERE deleted = 0 AND account_id =  :uid) employee_t ON employee_work.employee_id = employee_t.id 
+        // GROUP BY YEAR(employee_work.workdate_added) ORDER BY year";
+        $sql = "SELECT DISTINCT YEAR(usrwk.workdate_added) AS year FROM user_work AS usrwk INNER JOIN user AS usr ON usr.id = usrwk.user_id AND usr.account_id = :uid AND usr.active = 1 AND usr.deleted = 0 ORDER BY year";
         $d->select(false, false, $sql, array('uid' => $userId));
 
         if ($d->numRows == 0) {
@@ -144,17 +144,17 @@ class transaction {
          echo json_encode(array('res' => $data));
   
       }
-      
+      //newly modified
       public function initialDataEply($userId) {
-        $d      = new db('employee');
+        $d      = new db('user');
 
-        $sql    = "SELECT employee.id,firstname ,lastname FROM employee RIGHT JOIN (SELECT * FROM employee_work INNER JOIN (SELECT id FROM employee e 
+        // $sql    = "SELECT employee.id,firstname ,lastname FROM employee RIGHT JOIN (SELECT * FROM employee_work INNER JOIN (SELECT id FROM employee e 
 
-        WHERE deleted = 0
+        // WHERE deleted = 0
 
-          AND account_id = :uid) t ON employee_work.employee_id = t.id ) t1 ON employee.id = t1.employee_id ORDER BY id";
-
-        $d->select(false, false, $sql, array('uid' => $userId));
+        //   AND account_id = :uid) t ON employee_work.employee_id = t.id ) t1 ON employee.id = t1.employee_id ORDER BY id";
+        $sql = "SELECT DISTINCT usr.id, usr.firstname, usr.lastname FROM user AS usr INNER JOIN user_work AS usrwk ON usrwk.user_id = usr.id WHERE usr.active = 1 AND usr.deleted = 0 AND usr.account_id = ".$userId;
+        $d->select(false, false, $sql);
 
         if ($d->numRows == 0) {
 
@@ -1327,18 +1327,21 @@ class transaction {
         $e->getRow();
         return array("firstname" => $e->row["firstname"], "lastname" => $e->row["lastname"]);
     }
+    //newly added
     public function getManagerNameById($id){
         $e = new db("user");
         $e->select("id = :id", false, false, array("id" => $id));
         $e->getRow();
         return array("firstname" => $e->row["firstname"], "lastname" => $e->row["lastname"]);
     }
+    //newly added
     public function getPositionName($id){
         $e = new db("data");
         $e->select("id = :id", false, false, array("id" => $id));
         $e->getRow();
         return $e->row["display_text"];
     }
+    //newly added
     public function getEmployeeWorkById($user_id){
         $e = new db("user_work");
         $sql = "SELECT usrwk.*, data.display_text as site_location FROM data INNER JOIN user_work AS usrwk on usrwk.site_location = data.id WHERE usrwk.user_id = ". $user_id ." ORDER BY usrwk.workdate_added DESC LIMIT 1";
@@ -1347,26 +1350,53 @@ class transaction {
         return $e->row;
     }
     //newly added
+    public function getUserStatus($user_id){
+        $e = new db("user");
+        $e->select("id = :id", false, false, array("id" => $user_id));
+        $e->getRow();
+        return $e->row["active"];
+    }
+    //newly added
+    public function getAssessmentDate($p_forms_id){
+        $e = new db("form_reviews");
+        $sql = "SELECT * FROM form_reviews WHERE p_forms_id = ". $p_forms_id ." AND form_status = 'pending'";
+        $e->select(false, false, $sql);
+        $e->getRow();
+        return $e->row["assessment_date"];
+    }
+    //newly added
+    public function getPerformanceForm($e){
+        $employee_name = $this->getEmployeeNameById($e["employee_id"]);
+        $employee_work = $this->getEmployeeWorkById($e["employee_id"]);
+        $manager_name = $this->getEmployeeNameById($e["manager_id"]);
+        $row = array("id" => $e["id"], "manager_name" => $manager_name["firstname"]. " " .$manager_name["lastname"], 
+                    "employee_name" => $employee_name["firstname"]. " " .$employee_name["lastname"],
+                    "assessment_date" => $this->getAssessmentDate($e["id"]),
+                    "start_date" => $employee_work["start_date"],
+                    "questions" => $e["questions"],
+                    "user_status" => $this->getUserStatus($e["employee_id"]),
+                    "site_location" => $employee_work["site_location"],
+                    "frequency" => $e["frequency"] > 1 ? $e["frequency"]. " months" : $e["frequency"]. " month");
+        
+        return $row;
+    }
+    //newly added
+    public function formatDate($date){
+        $a = explode("-", $date);
+        return $a[2]. "-" .$a[1]. "-" .$a[0]; 
+    }
+    //newly added
     public function getPerformanceForms($post){
 
 
         $e = new db("performance_forms");
 
-        $e->select("account_id = :account_id And user_status = :active", false, false, array("account_id" => $post->account_id, "active" => 1));
+        $e->select("account_id = :account_id", false, false, array("account_id" => $post->account_id));
 
         $performance_forms = array();
 
         while($e->getRow()){
-            $employee_name = $this->getEmployeeNameById($e->row["employee_id"]);
-            $employee_work = $this->getEmployeeWorkById($e->row["employee_id"]);
-            $manager_name = $this->getEmployeeNameById($e->row["manager_id"]);
-            $row = array("id" => $e->row["id"], "form_status" => $e->row["form_status"], "manager_name" => $manager_name["firstname"]. " " .$manager_name["lastname"], 
-                        "employee_name" => $employee_name["firstname"]. " " .$employee_name["lastname"],
-                        "assessment_date" => $e->row["assessment_date"],
-                        "start_date" => $employee_work["start_date"],
-                        "questions" => $e->row["questions"],
-                        "site_location" => $employee_work["site_location"],
-                        "frequency" => $e->row["frequency"] > 1 ? $e->row["frequency"]. " months" : $e->row["frequency"]. " month");
+            $row = $this->getPerformanceForm($e->row);
             array_push($performance_forms, $row);
         }
         $employees = array();
@@ -1399,39 +1429,37 @@ class transaction {
         $data["employee_id"] = $post->form->employee_id;
         $data["manager_id"] = $post->form->manager_id;
         $data["frequency"] = $post->form->frequency;
-        $data["form_status"] = "pending";
         $time = strtotime($post->form->start_date);
         $final = date("Y-m-d", strtotime("+". $post->form->frequency / 1 ." month", $time));
         // $data["assessment_date"] = $post->form->start_date == null ? null : $final;
-        $data["assessment_date"] = $final;
         $data["questions"] = "";
         foreach($post->form->specializedQuestionList as $question){
             $data["questions"] .= $question->question_text;
-            $data["questions"] .= ",";
+            $data["questions"] .= "~#";
         }
         
         $e = new db("performance_forms");
         $e->insert($data);
+        $p_forms_id = $e->lastInsertId;
 
+        $e = new db("form_reviews");
+        $data = array();
+        $data["p_forms_id"] = $p_forms_id;
+        $data["assessment_date"] = $final;
 
-        $e->select("account_id = :account_id And user_status = :active", false, false, array("account_id" => $post->userData->account_id, "active" => 1));
+        $e->insert($data);
+
+        $e = new db("performance_forms");
+        $e->select("account_id = :account_id", false, false, array("account_id" => $post->userData->account_id));
 
         $performance_forms = array();
 
         while($e->getRow()){
-            $employee_name = $this->getEmployeeNameById($e->row["employee_id"]);
-            $employee_work = $this->getEmployeeWorkById($e->row["employee_id"]);
-            $manager_name = $this->getEmployeeNameById($e->row["manager_id"]);
-            $row = array("id" => $e->row["id"], "form_status" => $e->row["form_status"], "manager_name" => $manager_name["firstname"]. " " .$manager_name["lastname"], 
-                        "employee_name" => $employee_name["firstname"]. " " .$employee_name["lastname"],
-                        "assessment_date" => $e->row["assessment_date"],
-                        "start_date" => $employee_work["start_date"],
-                        "questions" => $e->row["questions"],
-                        "site_location" => $employee_work["site_location"],
-                        "frequency" => $e->row["frequency"] > 1 ? $e->row["frequency"]. " months" : $e->row["frequency"]. " month");
+            $row = $this->getPerformanceForm($e->row);
             array_push($performance_forms, $row);
         }
-        echo json_encode(array("performance_forms" => $performance_forms, "p" => $data));
+
+        echo json_encode(array("performance_forms" => $performance_forms));
     }
     //newly added
     public function updateForm($post){
@@ -1453,27 +1481,18 @@ class transaction {
         $data["questions"] = "";
         foreach($post->form->specializedQuestionList as $question){
             $data["questions"] .= $question->question_text;
-            $data["questions"] .= ",";
+            $data["questions"] .= "~#";
         }
         $e = new db("performance_forms");
         $data1 = $data;
         $data1["id"] = $post->form->id;
         $e->update($data, "id = :id", false, $data1);
-        $e->select("account_id = :account_id And user_status = :active", false, false, array("account_id" => $post->userData->account_id, "active" => 1));
+        $e->select("account_id = :account_id", false, false, array("account_id" => $post->userData->account_id));
 
         $performance_forms = array();
 
         while($e->getRow()){
-            $employee_name = $this->getEmployeeNameById($e->row["employee_id"]);
-            $employee_work = $this->getEmployeeWorkById($e->row["employee_id"]);
-            $manager_name = $this->getEmployeeNameById($e->row["manager_id"]);
-            $row = array("id" => $e->row["id"], "form_status" => $e->row["form_status"], "manager_name" => $manager_name["firstname"]. " " .$manager_name["lastname"], 
-                        "employee_name" => $employee_name["firstname"]. " " .$employee_name["lastname"],
-                        "assessment_date" => $e->row["assessment_date"],
-                        "start_date" => $employee_work["start_date"],
-                        "questions" => $e->row["questions"],
-                        "site_location" => $employee_work["site_location"],
-                        "frequency" => $e->row["frequency"] > 1 ? $e->row["frequency"]. " months" : $e->row["frequency"]. " month");
+            $row = $this->getPerformanceForm($e->row);
             array_push($performance_forms, $row);
         }
         echo json_encode(array("performance_forms" => $performance_forms));
@@ -1484,22 +1503,15 @@ class transaction {
 
         $e->delete('id = :id', false, array('id' => $post->form->id));
 
-        $e->select("account_id = :account_id And user_status = :active", false, false, array("account_id" => $post->userData->account_id, "active" => 1));
+        $e->select("account_id = :account_id", false, false, array("account_id" => $post->userData->account_id));
 
         $performance_forms = array();
 
         while($e->getRow()){
-            $employee_name = $this->getEmployeeNameById($e->row["employee_id"]);
-            $employee_work = $this->getEmployeeWorkById($e->row["employee_id"]);
-            $manager_name = $this->getEmployeeNameById($e->row["manager_id"]);
-            $row = array("id" => $e->row["id"], "form_status" => $e->row["form_status"], "manager_name" => $manager_name["firstname"]. " " .$manager_name["lastname"], 
-                        "employee_name" => $employee_name["firstname"]. " " .$employee_name["lastname"],
-                        "assessment_date" => $e->row["assessment_date"],
-                        "start_date" => $employee_work["start_date"],
-                        "site_location" => $employee_work["site_location"],
-                        "questions" => $e->row["questions"],
-                        "frequency" => $e->row["frequency"] > 1 ? $e->row["frequency"]. " months" : $e->row["frequency"]. " month");
+            $row = $this->getPerformanceForm($e->row);
             array_push($performance_forms, $row);
+            
+            
         }
         echo json_encode(array("performance_forms" => $performance_forms));
     }
@@ -1510,8 +1522,9 @@ class transaction {
         $e->select(false, false, $sql);
         $e->getRow();
         $site_location_id = $e->row["site_location"];
-        $e = new db("performance_forms");
-        $e->select("user_status = :active", false, false, array("active" => 1)); 
+        $e = new db("form_reviews");
+        $sql = "SELECT fr.*, pf.employee_id, pf.frequency, pf.manager_id, pf.questions FROM form_reviews AS fr INNER JOIN performance_forms AS pf ON pf.id = fr.p_forms_id WHERE fr.form_status = 'pending'";
+        $e->select(false, false, $sql); 
         $form_reviews = array();
         
         while($e->getRow()){
@@ -1525,14 +1538,16 @@ class transaction {
                 $manager_name = $this->getEmployeeNameById($e->row["manager_id"]);
                 $row = array("id" => $e->row["id"], "form_status" => $e->row["form_status"], "manager_name" => $manager_name["firstname"]. " " .$manager_name["lastname"], 
                             "employee_name" => $employee_name["firstname"]. " " .$employee_name["lastname"],
-                            "assessment_date" => $e->row["assessment_date"],
+                            "completed_date" => $e->row["completed_date"],
                             "start_date" => $employee_work["start_date"],
                             "site_location" => $employee_work["site_location"],
                             "questions" => $e->row["questions"],
                             "scores" => $e->row["scores"],
                             "comments" => $e->row["comments"],
-                            "review_date" => $e->row["review_date"],
-                            "frequency" => $e->row["frequency"]);
+                            "assessment_date" => $e->row["assessment_date"],
+                            "user_status" => $this->getUserStatus($e->row["employee_id"]),
+                            "frequency" => $e->row["frequency"],
+                            "p_forms_id" => $e->row["p_forms_id"]);
                 array_push($form_reviews, $row);
             }
         }
@@ -1550,39 +1565,53 @@ class transaction {
         $data = array();
         $data["scores"] = $post->scores;
         $data["comments"] = $post->comments;
-        $e = new db("performance_forms");
-        $e->select("id = :id", false, false, array("id" => $post->id));
+        $e = new db("form_reviews");
+        $sql = "SELECT fr.*, pf.account_id, pf.employee_id, pf.manager_id, pf.frequency, pf.questions FROM form_reviews AS fr INNER JOIN performance_forms AS pf ON pf.id = fr.p_forms_id WHERE fr.id = ".$post->id;
+        $e->select(false, false, $sql);
         $e->getRow();
         date_default_timezone_get("Australia/Sydney");
-        $data["review_date"] = date("Y-m-d");
+        $data["completed_date"] = date("Y-m-d");
+        $data["form_status"] = "completed";
         $time = strtotime(date("Y-m-d"));
         $final = date("Y-m-d", strtotime("+". $e->row["frequency"] / 1 ." month", $time));
-        $data["scores"] .= "~#".$data["scores"];
-        $data["comments"] .= "!#".$data["comments"];
         // $data["assessment_date"] = $post->form->start_date == null ? null : $final;
-        $data["assessment_date"] = $final;
-        $e = new db("performance_forms");
-        $data1 = $data;
-        $data1["id"] = $post->id;
-        $e->update($data, "id = :id", false, $data1);
+        $data2 = array();
+        $data2["p_forms_id"] = $e->row["p_forms_id"];
+        $data2["assessment_date"] = $final;
+        
         $sys_log = array();
-        $e->select("id = :id", false, false, array("id" => $post->id));
-        $e->getRow();
+        
         $manager_name = $this->getEmployeeNameById($e->row["manager_id"]);
         $sys_log['who'] = $manager_name["firstname"]. " " . $manager_name["lastname"];
         $employee_name = $this->getEmployeeNameById($e->row["employee_id"]);
         $sys_log['what'] = "Completed a review for ".$employee_name["firstname"]. " ". $employee_name["lastname"];
 
-        $sys_log['time'] = $data["review_date"];
+        $sys_log['time'] = $data["completed_date"];
 
         $sys_log['account_id'] = $e->row["account_id"];
         $sl = new db("system_logs");
 
         $sl->insert($sys_log);
+
+        $e = new db("form_reviews");
+        $data1 = $data;
+        $data1["id"] = $post->id;
+        $e->update($data, "id = :id", false, $data1);
+        $e->insert($data2);
+        
+
         $this->getFormReviews($post);
 
         //storing system log 
         
+    }
+    //newly added
+    public function deleteFormReview($post){
+        $e      = new db('form_reviews');
+
+        $e->delete('id = :id', false, array('id' => $post->form->id));
+
+        $this->getFormReviews($post);
     }
     //newly added
     public function getFormReviewsForView($post){
@@ -1591,8 +1620,9 @@ class transaction {
         $e->select(false, false, $sql);
         $e->getRow();
         $site_location_id = $e->row["site_location"];
-        $e = new db("performance_forms");
-        $e->select("employee_id = :id", false, false, array("id" => $post->userData->id));
+        $e = new db("form_reviews");
+        $sql = "SELECT fr.*, pf.account_id, pf.manager_id, pf.questions FROM form_reviews AS fr INNER JOIN performance_forms AS pf ON pf.id = fr.p_forms_id AND pf.employee_id = ".$post->userData->id." WHERE fr.form_status = 'completed'";
+        $e->select(false, false, $sql);
         $form_reviews = array();
         
         while($e->getRow()){
@@ -1601,18 +1631,14 @@ class transaction {
             $ek->select(false, false, $sql);
             $ek->getRow();
             if($ek->row["site_location"] == $site_location_id){
-                $employee_name = $this->getEmployeeNameById($e->row["employee_id"]);
-                $employee_work = $this->getEmployeeWorkById($e->row["employee_id"]);
                 $manager_name = $this->getEmployeeNameById($e->row["manager_id"]);
-                $row = array("id" => $e->row["id"], "form_status" => $e->row["form_status"], "manager_name" => $manager_name["firstname"]. " " .$manager_name["lastname"], 
-                            "employee_name" => $employee_name["firstname"]. " " .$employee_name["lastname"],
+                $row = array("id" => $e->row["id"], "manager_name" => $manager_name["firstname"]. " " .$manager_name["lastname"], 
                             "assessment_date" => $e->row["assessment_date"],
-                            "start_date" => $employee_work["start_date"],
-                            "site_location" => $employee_work["site_location"],
+                            "p_forms_id" => $e->row["p_forms_id"],
                             "questions" => $e->row["questions"],
                             "scores" => $e->row["scores"],
                             "comments" => $e->row["comments"],
-                            "review_date" => $e->row["review_date"]);
+                            "completed_date" => $e->row["completed_date"]);
                 array_push($form_reviews, $row);
             }
         }
@@ -1625,28 +1651,6 @@ class transaction {
         echo json_encode(array("form_reviews" => $form_reviews, "standard_questions" => $standard_questions));
     }
     
-    //newly added
-    public function getReviewReports($post){
-        $data = array();
-        $e = new db("performance_forms");
-        $e->select("scores <> :scores AND account_id = :account_id", false, false, array("scores" => "", "account_id" => $post->userData->account_id));
-        while($e->getRow()){
-            $employee_name = $this->getEmployeeNameById($e->row["employee_id"]);
-            $employee_work = $this->getEmployeeWorkById($e->row["employee_id"]);
-            $row = array("id" => $e->row["id"],
-                        "employee_name" => $employee_name["firstname"]. " " .$employee_name["lastname"],
-                        "site_location" => $employee_work["site_location"],
-                        "scores" => $e->row["scores"],
-                        "department_name" => $employee_work["department_name"]);
-            array_push($data, $row);
-        }
-        echo json_encode(array("review_reports" => $data));
-    }
-    //newly added
-    public function formatDate($date){
-        $a = explode("-", $date);
-        return $a[2]. "-" .$a[1]. "-" .$a[0]; 
-    }
     //newly added
     public function saveReminder($post, $returnJson=true){
         $data = (array)$post->cloned_reminder;
@@ -5181,6 +5185,107 @@ class transaction {
 
     }
     //newly added
+    public function calcScore($scores){
+        $total_score = 0;
+        foreach($scores as $val){
+            $score_array = explode(",", rtrim($val, ","));
+            
+            foreach($score_array as $key => $val1){
+                $total_score += intval($val1);
+            }
+               
+        }
+        return $total_score;
+    }
+    //newly added
+    public function getScoresByYear($post){
+        $year = $post->year;
+        $userId = $post->userId;
+        $sql = "SELECT distinct pf.employee_id FROM form_reviews AS fr INNER JOIN performance_forms AS pf ON pf.id = fr.p_forms_id AND pf.account_id = ".$userId." WHERE fr.form_status = 'completed' AND YEAR(completed_date) = ".$year;
+        $fr = new db("form_reviews");
+        $fr->select(false, false, $sql);
+        $names = array();
+        $scores = array();
+        while($fr->getRow()){
+            $nm = $this->getEmployeeName($fr->row["employee_id"]);
+            $sql = "SELECT fr.scores FROM form_reviews AS fr INNER JOIN performance_forms AS pf ON pf.id = fr.p_forms_id AND pf.employee_id = ".$fr->row["employee_id"]. " AND pf.account_id = ".$userId." WHERE fr.form_status = 'completed' AND YEAR(completed_date) = ".$year;
+            $fr1 = new db("form_reviews");
+            $fr1->select(false, false, $sql);
+            $score_array = array();
+            while($fr1->getRow()){
+                array_push($score_array, $fr1->row["scores"]);
+            }
+            $score = $this->calcScore($score_array);
+            array_push($names, $nm);
+            array_push($scores, $score);
+        }
+        echo json_encode(array("names" => $names, "scores" => $scores));
+    }
+    //newly added
+    public function getScoresByPosition($post){
+        $names = array();
+        $scores = array();
+        $year = $post->year;
+        $user_id = $post->user_id;
+        $account_id = $post->account_id;
+        $sql = "SELECT position FROM user_work WHERE user_id = ".$user_id." ORDER BY workdate_added DESC LIMIT 1";
+        $usr = new db("user_work");
+        $usr->select(false, false, $sql);
+        $usr->getRow();
+        $position = $usr->row["position"];
+        $pf = new db("performance_forms");
+        $sql = "SELECT DISTINCT pf.employee_id, pf.id FROM form_reviews AS fr INNER JOIN performance_forms AS pf ON pf.account_id = ".$account_id." AND pf.id = fr.p_forms_id INNER JOIN user_work AS usrwk ON usrwk.position = ".$position." AND usrwk.user_id = pf.employee_id WHERE fr.form_status = 'completed' AND YEAR(fr.assessment_date) =".$year;
+        $pf->select(false,false,$sql);
+        while($pf->getRow()){
+            //var_dump($pf->row);
+            $sql = "SELECT fr.scores FROM form_reviews AS fr INNER JOIN performance_forms AS pf ON fr.p_forms_id = pf.id AND pf.employee_id = ".$pf->row["employee_id"];
+            $nm = $this->getEmployeeName($pf->row["employee_id"]);
+            $total_score = 0;
+            $fr = new db("form_reviews");
+            $fr->select(false, false, $sql);
+            $score_array = array();
+            while($fr->getRow()){
+                array_push($score_array, $fr->row["scores"]);
+            }
+            $score = $this->calcScore($score_array);
+            array_push($names, $nm);
+            array_push($scores, $score);
+        }
+        echo json_encode(array("names" => $names, "scores" => $scores, "current_position" => $this->getPositionName($position)));
+    }
+    //newly added
+    public function getScoresBySitelocation($post){
+        $names = array();
+        $scores = array();
+        $year = $post->year;
+        $user_id = $post->user_id;
+        $account_id = $post->account_id;
+        $sql = "SELECT site_location FROM user_work WHERE user_id = ".$user_id." ORDER BY workdate_added DESC LIMIT 1";
+        $usr = new db("user_work");
+        $usr->select(false, false, $sql);
+        $usr->getRow();
+        $site_location = $usr->row["site_location"];
+        $pf = new db("performance_forms");
+        $sql = "SELECT DISTINCT pf.employee_id, pf.id FROM form_reviews AS fr INNER JOIN performance_forms AS pf ON pf.account_id = ".$account_id." AND pf.id = fr.p_forms_id INNER JOIN user_work AS usrwk ON usrwk.site_location = ".$site_location." AND usrwk.user_id = pf.employee_id WHERE fr.form_status = 'completed' AND YEAR(fr.assessment_date) =".$year;
+        $pf->select(false,false,$sql);
+        while($pf->getRow()){
+            //var_dump($pf->row);
+            $sql = "SELECT fr.scores FROM form_reviews AS fr INNER JOIN performance_forms AS pf ON fr.p_forms_id = pf.id AND pf.employee_id = ".$pf->row["employee_id"];
+            $nm = $this->getEmployeeName($pf->row["employee_id"]);
+            $total_score = 0;
+            $fr = new db("form_reviews");
+            $fr->select(false, false, $sql);
+            $score_array = array();
+            while($fr->getRow()){
+                array_push($score_array, $fr->row["scores"]);
+            }
+            $score = $this->calcScore($score_array);
+            array_push($names, $nm);
+            array_push($scores, $score);
+        }
+        echo json_encode(array("names" => $names, "scores" => $scores, "site_location" => $this->getSiteLocation($site_location)));
+    }
+    //newly added
     public function allScores($id,$year,$userId){
         $employee_name = array();
         $total_score = array();
@@ -5221,7 +5326,7 @@ class transaction {
         $site_location = $e->row["site_location"];
         $position = $e->row["position"];
         $pf = new db("performance_forms");
-        $sql = "SELECT DISTINCT pf.employee_id, pf.scores, CONCAT(user.firstname, ' ', user.lastname) AS nm  FROM performance_forms AS pf INNER JOIN user_work AS ewk ON ewk.user_id = pf.employee_id AND ewk.site_location = ".$site_location." AND ewk.position = ".$position.
+        $sql = "SELECT DISTINCT pf.employee_id, fr.scores, CONCAT(user.firstname, ' ', user.lastname) AS nm  FROM performance_forms AS pf INNER JOIN user_work AS ewk ON ewk.user_id = pf.employee_id AND ewk.site_location = ".$site_location." AND ewk.position = ".$position.
                     " WHERE pf.scores <> '' AND YEAR(pf.review_date) = ".$year;
         $pf->select(false,false,$sql);
         while($pf->getRow()){

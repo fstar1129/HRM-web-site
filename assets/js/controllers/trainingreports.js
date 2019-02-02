@@ -34,6 +34,7 @@ app.controller('trainingreportsController', ['$scope', '$rootScope', 'cookie','u
                 }
             }
         };
+        $scope.current_position = "";
         $scope.totalBarLabels = [];
         $scope.totalBarData = [];
         $scope.totalBarColors = [];
@@ -138,6 +139,18 @@ app.controller('trainingreportsController', ['$scope', '$rootScope', 'cookie','u
 
         $scope.baseSalaryData = [];
         $scope.baseSalaryLabels = [];
+        
+        $scope.scoresByYearData = [];
+        $scope.scoresByYearLabels = [];
+
+        $scope.scoresByPositionData = [];
+        $scope.scoresByPositionLabels = [];
+
+        $scope.scoresBySitelocationData = [];
+        $scope.scoresBySitelocationLabels = [];
+
+        $scope.daysOverDueData = [];
+        $scope.daysOverDueLabels = [];
 
         $scope.summaryItems = [
             'Total Salaries',
@@ -151,6 +164,9 @@ app.controller('trainingreportsController', ['$scope', '$rootScope', 'cookie','u
             'Average Sick Days per Emp'
         ];
         $scope.baseSalarySeries = [];
+
+        $scope.scoresByYearSeries = [];
+        $scope.daysOverDueSeries = [];
 
         $scope.employeePropsLeft = [
             'Hire Date',
@@ -254,29 +270,7 @@ app.controller('trainingreportsController', ['$scope', '$rootScope', 'cookie','u
         ]
     };
     
-    $scope.calcTotalScore = function(scores){
-        scores = scores.split("~#")[scores.split("~#").length - 1];
-        var scoreList = scores.split(",");
-        var total_score = 0;
-        scoreList.forEach(function(value, index){
-            if(value != ""){    
-                total_score += value / 1; 
-            }
-        });
-        return total_score;
-    }
-    hrmAPIservice.getReviewReports(userData).then(function(response) {
-        console.log(response.data);
-        $scope.gridOptionsComplex.data = response.data.review_reports.map(function(review){
-            return{
-                id: review.id,
-                employee_name: review.employee_name,
-                site_location: review.site_location,
-                average_score: $scope.calcTotalScore(review.scores),
-                department: review.department_name,
-            }
-        });
-    });
+    
     $scope.init = function () {
 
         $scope.userId = cookie
@@ -299,6 +293,27 @@ app.controller('trainingreportsController', ['$scope', '$rootScope', 'cookie','u
         }
 
         $scope.baseSalaryColors = temp;
+        $scope.scoresByYearColors = temp;
+        $scope.scoresByPositionColors = temp;
+        $scope.daysOverDueColors = temp;
+        hrmAPIservice
+            .send('department_list/' + $scope.userId)
+            .then(function (response) {
+                if (response.data.res == null) {
+                    return;
+                }
+                $scope.departments = response.data.res;
+                $scope.gridOptionsComplexDprt.data = $scope.departments;
+                $scope.department_length = ($scope.gridOptionsComplexDprt.data.length * 31) + 71;
+                if ($scope.department_length >= 377) {
+                    $scope.department_length = 'noNeed';
+                }
+
+                $scope.currentDepartment = $scope.departments[0].department;
+
+                $scope.sendDprtReq($scope.departments[0]);
+
+            });
         hrmAPIservice
             .send('department_list/' + $scope.userId)
             .then(function (response) {
@@ -381,6 +396,9 @@ app.controller('trainingreportsController', ['$scope', '$rootScope', 'cookie','u
                         }
                         $scope.sendEmployee($scope.employees[0].id);
 
+                       
+
+
                         hrmAPIservice.send("total_salary_count/" + $scope.years[0] + '/' + $scope.userId)
                             .then(function (response) {
                                 if (response.data.res == null) {
@@ -459,7 +477,11 @@ app.controller('trainingreportsController', ['$scope', '$rootScope', 'cookie','u
                 $scope.daysoverduePieLabels = PieData.label;
                 $scope.daysoverduePieHeight = 257 + 'px';
             });
-
+            
+            //newly added for "Employee Performance Score by ...."
+            console.log($scope.userId);
+           
+            
     }
 
     $scope.GoBack = function () {
@@ -525,34 +547,42 @@ app.controller('trainingreportsController', ['$scope', '$rootScope', 'cookie','u
     }
 
     $scope.sendYrReq = function (param) {
+        $scope.currentYear = param;
         if ($scope.currentEmployee != null) {
-            hrmAPIservice
-                .send("selectedEply/" + $scope.currentEmployee + "/" + param + '/' + $scope.userId)
-                .then(function (response) {
-                    if (response.data.res == null) {
-                        //alert('There is no record that matches.');
-                        $scope.employeeName = null;
-                        $scope.employee = [];
-                        return;
-                    }
-                    var temp = response.data.res.employee_data;
-                    temp['Name'] = temp['firstname'] + ' ' + temp['lastname'];
-                    temp['Base Salary'] = temp['annual_rate'];
 
-                    temp["Annual Leave"] = parseFloat(temp["Annual Leave"]).toFixed(2);
-                    temp["Base Salary"] = parseFloat(temp["Base Salary"]).toFixed(2);
-                    temp["Bonus"] = parseFloat(temp["Bonus"]).toFixed(2);
-                    temp["Commission"] = parseFloat(temp["Commission"]).toFixed(2);
-                    temp["Overtime"] = parseFloat(temp["Overtime"]).toFixed(2);
-                    temp["Sick Days"] = parseFloat(temp["Sick Days"]).toFixed(2);
-                    temp["Total Comp."] = parseFloat(temp["Total Comp."]).toFixed(2);
+            //update employee performance Score by year
+            hrmAPIservice.getScoresByYear($scope.currentYear, $scope.userId).then(function(response) {
+                console.log(response.data);
+                if (response.data == null) {
+                    $scope.scoresByYearData = [];
+                    return;
+                }
+                $scope.scoresByYearLabels = response.data.names;
+                $scope.scoresByYearData = response.data.scores;
+            });
 
-                    $scope.employee = temp;
-                    $scope.employeeName = $scope.employee['Name'];
-                    delete $scope.employee.Name;
-                    //console.log("response ", response.data.res);
-                });
+            //update employee compared to other position
+            hrmAPIservice.getScoresByPosition($scope.currentYear, $scope.userId, $scope.currentEmployee).then(function(response) {
+                console.log(response.data);
+                if (response.data == null) {
+                    $scope.scoresByPositionData = [];
+                    return;
+                }
+                $scope.scoresByPositionLabels = response.data.names;
+                $scope.scoresByPositionData = response.data.scores;
+                $scope.current_position = response.data.current_position;
+            });
 
+            hrmAPIservice.getScoresBySitelocation($scope.currentYear, $scope.userId, $scope.currentEmployee).then(function(response) {
+                console.log(response.data);
+                if (response.data == null) {
+                    $scope.scoresBySitelocationData = [];
+                    return;
+                }
+                $scope.scoresBySitelocationLabels = response.data.names;
+                $scope.scoresBySitelocationData = response.data.scores;
+                
+            });
         }
         $scope.currentYear = param;
         // console.log("param ", param);
@@ -751,83 +781,28 @@ app.controller('trainingreportsController', ['$scope', '$rootScope', 'cookie','u
     $scope.sendEmployee = function (param) {
         $scope.currentEmployee = param;
         if ($scope.currentYear != null) {
-            hrmAPIservice
-                .send("selectedEply/" + param + "/" + $scope.currentYear + '/' + $scope.userId)
-                .then(function (response) {
-                    if (response.data.res == null) {
-                        //alert('There is no record that matches.');
-                        $scope.employee = [];
-                        $scope.employeeName = null;
-                        return;
-                    }
-                    var temp = response.data.res.employee_data;
-                    temp['Name'] = temp['firstname'] + ' ' + temp['lastname'];
-                    temp['Base Salary'] = temp['annual_rate'];
+            //update chart "Employee compared to other position"
+            hrmAPIservice.getScoresByPosition($scope.currentYear, $scope.userId, $scope.currentEmployee).then(function(response) {
+                console.log(response.data);
+                if (response.data == null) {
+                    $scope.scoresByPositionData = [];
+                    return;
+                }
+                $scope.scoresByPositionLabels = response.data.names;
+                $scope.scoresByPositionData = response.data.scores;
+                $scope.current_position = response.data.current_position;
+            });
 
-                    temp["Annual Leave"] = parseFloat(temp["Annual Leave"]).toFixed(2);
-                    temp["Base Salary"] = parseFloat(temp["Base Salary"]).toFixed(2);
-                    temp["Bonus"] = parseFloat(temp["Bonus"]).toFixed(2);
-                    temp["Commission"] = parseFloat(temp["Commission"]).toFixed(2);
-                    temp["Overtime"] = parseFloat(temp["Overtime"]).toFixed(2);
-                    temp["Sick Days"] = parseFloat(temp["Sick Days"]).toFixed(2);
-                    temp["Total Comp."] = parseFloat(temp["Total Comp."]).toFixed(2);
-
-                    $scope.employee = temp;
-                    $scope.employeeName = $scope.employee['Name'];
-                    delete $scope.employee.Name;
-                    //console.log("response ", response.data.res);          
-                });
-                //newly added
-                hrmAPIservice
-                .send("all_scores/" + param + "/" + $scope.currentYear + '/' + $scope.userId)
-                .then(function (response) {
-                    console.log(response.data);
-
-                    var temp_label = response.data.names,
-                        temp_data = response.data.scores,
-                        j = 0,
-                        color = [];
-                    $scope.allscoresBarLabels = temp_label;
-                    $scope.allscoresBarData = temp_data;
-                    $scope.allscoresBarColors = color;
-                    $scope.employee_location = response.data.site_location;
-                    if (temp_label.length == 0) {
-                        return;
-                    }
-                    for (var i = 0; i <= temp_label.length; i++) {
-                        color.push($scope.blueColor);
-                    }
-                    $scope.allscoresBarLabels = temp_label;
-                    $scope.allscoresBarData = temp_data;
-                    $scope.allscoresBarColors = color;
-                    $scope.employee_location = response.data.site_location;
-                });
-                hrmAPIservice
-                .send("all_scores_by_position/" + param + "/" + $scope.currentYear + '/' + $scope.userId)
-                .then(function (response) {
-                    console.log(response.data);
-                   
-                    var temp_label = response.data.names,
-                        temp_data = response.data.scores,
-                        j = 0,
-                        color = [];
-                    $scope.allscoresbyposBarLabels = temp_label;
-                    $scope.allscoresbyposBarData = temp_data;
-                    $scope.allscoresbyposBarColors = color;
-                    $scope.employee_location = response.data.site_location;
-                    $scope.position = response.data.position;
-                    if (temp_label.length == 0) {
-                        return;
-                    }
-                    for (var i = 0; i <= temp_label.length; i++) {
-                        color.push($scope.blueColor);
-                    }
-                    $scope.allscoresbyposBarLabels = temp_label;
-                    $scope.allscoresbyposBarData = temp_data;
-                    $scope.allscoresbyposBarColors = color;
-                    $scope.employee_location = response.data.site_location;
-                    $scope.position = response.data.position;
-                });
+            hrmAPIservice.getScoresBySitelocation($scope.currentYear, $scope.userId, $scope.currentEmployee).then(function(response) {
+                console.log(response.data);
+                if (response.data == null) {
+                    $scope.scoresBySitelocationData = [];
+                    return;
+                }
+                $scope.scoresBySitelocationLabels = response.data.names;
+                $scope.scoresBySitelocationData = response.data.scores;
+                $scope.current_position = response.data.current_position;
+            });
         }
         return;
     }

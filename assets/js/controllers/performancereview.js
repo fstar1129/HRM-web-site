@@ -3,6 +3,7 @@ app.controller('performancereviewController', ['$scope', '$rootScope', 'cookie',
     cookie.getPermissions();
     var perms = $rootScope.perms;
     $scope.edit_option = 0;
+    $scope.p_forms_id = 0;
     $scope.pageTitle = "Performance Review";
     $scope.formEnabled = 0;
     $scope.master = {}; 
@@ -18,10 +19,11 @@ app.controller('performancereviewController', ['$scope', '$rootScope', 'cookie',
         },
         columnDefs: [
           { name: 'id', visible: false },
+          { name: 'p_forms_id', visible: false },
           { name: 'form_status', visible: false },
+          { name: 'user_status', visible: false },
           { name: 'questions', visible: false },
           { name: 'scores', visible: false },
-          { name: 'comments', visible: false },
           { name: 'employee_name', displayName: 'Employee', width: '20%', enableCellEdit: false },
           { name: 'start_date', displayName: 'Start Date', width: '15%', enableFiltering: true, cellClass: 'center',enableCellEdit: false},
           { name: 'manager_name', displayName: 'Manager', width: '20%', enableCellEdit: false },
@@ -81,28 +83,12 @@ app.controller('performancereviewController', ['$scope', '$rootScope', 'cookie',
         if(perms.performancereview.delete == 0) return;
         var answer = confirm("Delete the review for " + fDetail.employee_name + '? Are you sure?');
         if (answer) {
-            if(fDetail.form_status == "pending"){
+            if(fDetail.user_status == "pending"){
                 alert("You can not delete a form on pending!");
                 return;
             }
-            if(fDetail.form_status == "completed"){
-                alert("You can not delete a form on completed!");
-                return;
-            }
             hrmAPIservice.deleteFormReview(fDetail, userData).then(function(response) {
-                $scope.gridOptionsComplex.data = response.data.performance_forms.map(function(form){
-                    return{
-                        id: form.id,
-                        form_status: form.form_status,
-                        questions: form.questions,
-                        manager_name: form.manager_name,
-                        employee_name: form.employee_name,
-                        assessment_date:$scope.formatDate(form.assessment_date), 
-                        start_date: $scope.formatDate(form.start_date),
-                        site_location: form.site_location,
-                        frequency: form.frequency
-                    }
-                });
+                $scope.displayGrid(response);
             });
         }
     }
@@ -112,7 +98,7 @@ app.controller('performancereviewController', ['$scope', '$rootScope', 'cookie',
         $scope.specializedQuestionList = [];
         $scope.scoreList = [];
         $scope.commentList = [];
-        $scope.questions = obj.questions.split(",");
+        $scope.questions = obj.questions.split("~#");
         angular.forEach($scope.questions, function (value, key) {
             if(key < $scope.questions.length - 1) $scope.specializedQuestionList.push({id : key + 1, question_text : value});
         });  
@@ -121,7 +107,8 @@ app.controller('performancereviewController', ['$scope', '$rootScope', 'cookie',
                 $scope.edit_option = 0;
                 return;
             }
-            $scope.edit_option = obj.id;
+            $scope.edit_option = obj.id; //review id
+            $scope.p_forms_id = obj.p_forms_id; // form id
             return
         // }else{
         //     $scope.scores = obj.scores.split(",");
@@ -141,21 +128,22 @@ app.controller('performancereviewController', ['$scope', '$rootScope', 'cookie',
         $scope.formEnabled = 0;
         $scope.edit_option = 0;
     }
-
-    hrmAPIservice.getFormReviews(userData).then(function(response) {
-        console.log(response.data);
+    $scope.displayGrid = function(response){
+        
         $scope.gridOptionsComplex.data = response.data.form_reviews.filter(function(review){
             if(Math.ceil(review.frequency * 30 / 4) < $scope.calcDaysBeforeReviewNum(review.assessment_date)){
+                console.log($scope.calcDaysBeforeReviewNum(review.assessment_date));
                 return false;
             }
             return true;
         }).map(function(review){
             return{
                 id: review.id,
+                p_forms_id: review.p_forms_id,
                 form_status: review.form_status,
+                user_status: review.user_status,
                 questions: review.questions,
                 scores: review.scores,
-                comments: review.comments,
                 manager_name: review.manager_name,
                 employee_name: review.employee_name,
                 // assessment_date: review.form_status == "completed" ? "Completed" : $scope.formatDate(review.assessment_date), 
@@ -165,6 +153,10 @@ app.controller('performancereviewController', ['$scope', '$rootScope', 'cookie',
                 days_before_review: $scope.calcDaysBeforeReview(review.assessment_date)
             }
         });
+    }
+    hrmAPIservice.getFormReviews(userData).then(function(response) {
+        console.log(response.data);
+        $scope.displayGrid(response);
         $scope.standardQuestionList = response.data.standard_questions;
     });
     $scope.saveFormReview = function() {
@@ -189,28 +181,9 @@ app.controller('performancereviewController', ['$scope', '$rootScope', 'cookie',
                 $scope.commentText += "~#";
             }
             console.log($scope.commentText);
-            hrmAPIservice.saveFormReview($scope.scoreText, $scope.commentText, $scope.edit_option, userData).then(function(response) {//edit_option is the form id to review
-                $scope.gridOptionsComplex.data = response.data.form_reviews.filter(function(review){
-                    if(Math.ceil(review.frequency * 30 / 4) < $scope.calcDaysBeforeReviewNum(review.assessment_date)){
-                        return false;
-                    }
-                    return true;
-                }).map(function(review){
-                    return{
-                        id: review.id,
-                        form_status: review.form_status,
-                        questions: review.questions,
-                        scores: review.scores,
-                        comments: review.comments,
-                        manager_name: review.manager_name,
-                        employee_name: review.employee_name,
-                        // assessment_date: review.form_status == "completed" ? "Completed" : $scope.formatDate(review.assessment_date), 
-                        assessment_date: $scope.formatDate(review.assessment_date), 
-                        start_date: $scope.formatDate(review.start_date),
-                        //days_before_review: review.form_status == "completed" ? "N/A" : $scope.calcDaysBeforeReview(review.assessment_date)
-                        days_before_review: $scope.calcDaysBeforeReview(review.assessment_date)
-                    }
-                });
+            hrmAPIservice.saveFormReview($scope.scoreText, $scope.commentText, $scope.edit_option, $scope.p_forms_id, userData).then(function(response) {//edit_option is the form id to review
+                
+                $scope.displayGrid(response);
                 
                 $scope.success = 1;
                 $scope.showMessage = 1;

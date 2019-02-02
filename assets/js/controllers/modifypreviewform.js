@@ -22,7 +22,7 @@ app.controller('modifypreviewformController', ['$scope', '$rootScope', 'cookie',
             }                    
         }
         return list;
-    }  
+    }
     
     $scope.mngrSearch = function (query) {
         var list = [];
@@ -84,7 +84,7 @@ app.controller('modifypreviewformController', ['$scope', '$rootScope', 'cookie',
         },
         columnDefs: [
           { name: 'id', visible: false },
-          { name: 'form_status', visible: false },
+          { name: 'user_status', visible: false },
           { name: 'questions', visible: false },
           { name: 'employee_name', displayName: 'Employee', width: '15%', enableCellEdit: false },
           { name: 'manager_name', displayName: 'Manager', width: '15%', enableCellEdit: false },
@@ -102,29 +102,30 @@ app.controller('modifypreviewformController', ['$scope', '$rootScope', 'cookie',
         if(perms.modifypreviewform.delete == 0) return;
         var answer = confirm("Delete the form for " + fDetail.employee_name + '? Are you sure?');
         if (answer) {
-            if(fDetail.form_status == "pending"){
+            if(fDetail.user_status != 0){
                 alert("You can not delete a form on pending! Please complete the form before removing it from the interface");
                 return;
             }
             hrmAPIservice.deleteForm(fDetail, userData).then(function(response) {
-                $scope.gridOptionsComplex.data = response.data.performance_forms.map(function(form){
-                    return{
-                        id: form.id,
-                        form_status: form.form_status,
-                        questions: form.questions,
-                        manager_name: form.manager_name,
-                        employee_name: form.employee_name,
-                        assessment_date:$scope.formatDate(form.assessment_date), 
-                        start_date: $scope.formatDate(form.start_date),
-                        site_location: form.site_location,
-                        frequency: form.frequency
-                    }
-                    
-                });
+                $scope.displayGrid(response);
             });
         }
     }
-    
+    $scope.displayGrid = function(response){
+        $scope.gridOptionsComplex.data = response.data.performance_forms.map(function(form){
+            return{
+                id: form.id,
+                form_status: form.form_status,
+                questions: form.questions,
+                manager_name: form.manager_name,
+                employee_name: form.employee_name,
+                assessment_date:$scope.formatDate(form.assessment_date), 
+                start_date: $scope.formatDate(form.start_date),
+                site_location: form.site_location,
+                frequency: form.frequency
+            }
+        });
+    }
     $scope.editForm = function(obj) {
         $scope.formEnabled = 1;
         $scope.edit_option = 1;
@@ -150,7 +151,8 @@ app.controller('modifypreviewformController', ['$scope', '$rootScope', 'cookie',
         $scope.performance_form.manager_name =  $scope.editing_form.manager_name;
         $scope.performance_form.id =  $scope.editing_form.id;
         $scope.performance_form.frequency = obj.frequency.split(" ")[0];
-        $scope.questions = obj.questions.split(",");
+        $scope.questions = obj.questions.split("~#");
+        
         angular.forEach($scope.questions, function (value, key) {
             if(key < $scope.questions.length - 1) $scope.performance_form.specializedQuestionList.push({id : key + 1, question_text : value});
         });  
@@ -168,7 +170,6 @@ app.controller('modifypreviewformController', ['$scope', '$rootScope', 'cookie',
 
     $scope.clearForm = function() {
         $scope.performance_form = angular.copy($scope.master);
-        
         $scope.employee_name = null;
         $scope.manager_name = null;
         $scope.frequency = '';
@@ -178,19 +179,7 @@ app.controller('modifypreviewformController', ['$scope', '$rootScope', 'cookie',
 
     hrmAPIservice.getPerformanceForms(userData.account_id).then(function(response) {
         console.log(response.data);
-        $scope.gridOptionsComplex.data = response.data.performance_forms.map(function(form){
-            return{
-                id: form.id,
-                form_status: form.form_status,
-                questions: form.questions,
-                manager_name: form.manager_name,
-                employee_name: form.employee_name,
-                assessment_date:$scope.formatDate(form.assessment_date), 
-                start_date: $scope.formatDate(form.start_date),
-                site_location: form.site_location,
-                frequency: form.frequency
-            }
-        });
+        $scope.displayGrid(response);
         $scope.employeeList = response.data.employees;
         $scope.managerList = response.data.employees;
         $scope.standardQuestionList = response.data.standard_questions;
@@ -217,20 +206,7 @@ app.controller('modifypreviewformController', ['$scope', '$rootScope', 'cookie',
             }
             hrmAPIservice.updateForm($scope.performance_form, userData).then(function(response) {
                 console.log(response.data);
-                $scope.gridOptionsComplex.data = response.data.performance_forms.map(function(form){
-                    return{
-                        id: form.id,
-                        form_status: form.form_status,
-                        questions: form.questions,
-                        manager_name: form.manager_name,
-                        employee_name: form.employee_name,
-                        assessment_date:$scope.formatDate(form.assessment_date), 
-                        start_date: $scope.formatDate(form.start_date),
-                        site_location: form.site_location,
-                        frequency: form.frequency
-                    }
-                });
-                
+                $scope.displayGrid(response);
                 $scope.success = 1;
                 $scope.showMessage = 1;
                 $scope.userMessage = "Performance Review Form have been saved successfully!"; 
@@ -241,20 +217,7 @@ app.controller('modifypreviewformController', ['$scope', '$rootScope', 'cookie',
             
             hrmAPIservice.saveForm($scope.performance_form, userData).then(function(response) {
                 console.log(response.data);
-                $scope.gridOptionsComplex.data = response.data.performance_forms.map(function(form){
-                    return{
-                        id: form.id,
-                        form_status: form.form_status,
-                        questions: form.questions,
-                        manager_name: form.manager_name,
-                        employee_name: form.employee_name,
-                        assessment_date:$scope.formatDate(form.assessment_date), 
-                        start_date: $scope.formatDate(form.start_date),
-                        site_location: form.site_location,
-                        frequency: form.frequency
-                    }
-                });
-                
+                $scope.displayGrid(response);
                 $scope.success = 1;
                 $scope.showMessage = 1;
                 $scope.userMessage = "Performance Review Form have been saved successfully!"; 
